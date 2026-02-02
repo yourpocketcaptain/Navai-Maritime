@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+:root {
+  --background: #001219;
+  --foreground: #e9d8a6;
+}
+
+@theme inline {
+  --color-maritime-midnight: #001219;
+  --color-maritime-deep: #005f73;
+  --color-maritime-ocean: #0a9396;
+  --color-maritime-teal: #94d2bd;
+  --color-maritime-brass: #e9d8a6;
+  --color-maritime-orange: #ee9b00;
+  --color-maritime-copper: #ca6702;
+  --color-maritime-safety: #bb3e03;
+  
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(10, 147, 150, 0.1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(148, 210, 189, 0.1);
+  }
+}

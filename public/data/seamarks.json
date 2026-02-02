@@ -1,0 +1,72 @@
+[
+    {
+        "name": "Gibraltar West Light",
+        "type": "light",
+        "color": "#00e5ff",
+        "lat": 36.14,
+        "lon": -5.35
+    },
+    {
+        "name": "Suez Canal North",
+        "type": "buoy",
+        "color": "#ff3b3b",
+        "lat": 31.26,
+        "lon": 32.30
+    },
+    {
+        "name": "Panama Canal Entrance",
+        "type": "buoy",
+        "color": "#00ff00",
+        "lat": 8.91,
+        "lon": -79.52
+    },
+    {
+        "name": "Malacca Strait VTS",
+        "type": "light",
+        "color": "#ffea00",
+        "lat": 2.11,
+        "lon": 102.05
+    },
+    {
+        "name": "New York Harbor Entrance",
+        "type": "buoy",
+        "color": "#00e5ff",
+        "lat": 40.50,
+        "lon": -74.00
+    },
+    {
+        "name": "Sydney Harbour Head",
+        "type": "light",
+        "color": "#00e5ff",
+        "lat": -33.83,
+        "lon": 151.27
+    },
+    {
+        "name": "Cape Town Signal Hill",
+        "type": "light",
+        "color": "#00e5ff",
+        "lat": -33.91,
+        "lon": 18.40
+    },
+    {
+        "name": "Tokyo Bay Entrance",
+        "type": "buoy",
+        "color": "#ff3b3b",
+        "lat": 35.25,
+        "lon": 139.75
+    },
+    {
+        "name": "Bering Strait North",
+        "type": "light",
+        "color": "#ffffff",
+        "lat": 66.00,
+        "lon": -169.00
+    },
+    {
+        "name": "Cape Horn Light",
+        "type": "light",
+        "color": "#ffea00",
+        "lat": -55.98,
+        "lon": -67.22
+    }
+]

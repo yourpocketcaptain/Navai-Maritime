@@ -1,0 +1,346 @@
+"use client";
+
+import { useState } from "react";
+import DemoChat from "@/components/DemoChat";
+import Link from "next/link";
+import WaitlistModal from "@/components/WaitlistModal";
+import { PreviewAcademyModule, PreviewAnchor, PreviewContract, PreviewGeneric, PreviewGreatCircle, PreviewSeaService, PreviewStability, PreviewWeather } from "@/components/LandingPreviews";
+import { Anchor, Calendar, Compass, Clock, Crosshair, Globe, GraduationCap, Layers, MapPin, Maximize, RefreshCw, Shield, TrendingUp, Wind, Monitor, Smartphone, Wifi, WifiOff, Laptop, Instagram } from "lucide-react";
+
+export default function Home() {
+  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+
+  return (
+    <main className="min-h-screen relative overflow-hidden flex flex-col items-center pt-24 px-6 md:pt-32">
+      <WaitlistModal isOpen={isWaitlistOpen} onClose={() => setIsWaitlistOpen(false)} />
+      {/* Decorative Wave Background */}
+      <div className="absolute top-0 left-0 w-full h-full -z-10 opacity-10">
+        <div className="absolute top-[-20%] left-[-10%] w-[120%] h-[120%] animate-pulse rotate-3 bg-gradient-to-b from-maritime-ocean to-transparent blur-[120px]" />
+      </div>
+
+      {/* Top Navigation */}
+      <nav className="absolute top-0 w-full p-6 flex justify-end items-center gap-4 z-50">
+        <Link
+          href="/login?role=client"
+          className="px-6 py-2 rounded-full border border-maritime-ocean/50 bg-white/5 text-maritime-teal hover:bg-white/10 transition-all text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm hover:scale-105 active:scale-95"
+        >
+          Client Login
+        </Link>
+
+        <Link
+          href="/login"
+          className="px-6 py-2 rounded-full border border-maritime-ocean/50 bg-maritime-ocean/10 text-maritime-teal hover:bg-maritime-ocean/20 transition-all text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm hover:scale-105 active:scale-95 flex items-center gap-2"
+        >
+          <span>Developer Login</span>
+        </Link>
+      </nav>
+
+      {/* Hero Section */}
+      <div className="max-w-4xl text-center z-10 space-y-8">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-maritime-ocean/30 bg-maritime-ocean/5 text-maritime-teal text-xs uppercase tracking-widest mb-4">
+          <Anchor className="w-3 h-3" />
+          <span>NavAI: Next-Gen Maritime Intelligence</span>
+        </div>
+
+        <h1 className="text-5xl md:text-7xl font-light tracking-tight text-maritime-brass leading-[1.1]">
+          Your Digital <span className="font-extrabold text-maritime-ocean italic">First Mate</span>
+        </h1>
+
+        <p className="text-lg md:text-xl text-maritime-teal/80 max-w-2xl mx-auto font-light leading-relaxed">
+          Master maritime navigation. Use powerful tools on the <span className="font-bold text-maritime-teal">Web</span>, and if you are at sea, use them <span className="font-bold text-maritime-orange">Offline</span> with the iOS App.
+        </p>
+
+        {/* Download & Social Buttons */}
+        <div className="pt-4 flex flex-col items-center gap-6">
+          <div className="flex flex-col md:flex-row justify-center gap-4 items-start w-full">
+            <div className="flex flex-col items-center gap-3 w-full md:w-auto">
+              <button
+                onClick={() => setIsWaitlistOpen(true)}
+                className="group relative inline-flex items-center gap-3 px-8 py-4 bg-maritime-orange border border-maritime-orange text-maritime-midnight rounded-2xl font-bold transition-all hover:scale-105 hover:bg-maritime-orange/90 w-full md:w-auto justify-center shadow-[0_0_20px_rgba(255,165,0,0.3)] hover:shadow-[0_0_30px_rgba(255,165,0,0.5)]"
+              >
+                <div className="absolute -top-3 -right-3 z-20 bg-white text-maritime-midnight text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter shadow-lg rotate-12">
+                  Limited Spots
+                </div>
+                <AppleIcon className="w-6 h-6" />
+                <div className="flex flex-col items-start leading-none text-left">
+                  <span className="text-[10px] uppercase tracking-tighter opacity-80">iOS App Access</span>
+                  <span className="text-xl">Join Waitlist</span>
+                </div>
+              </button>
+
+              <div className="flex items-center gap-2 text-[10px] md:text-xs text-maritime-teal/90 bg-maritime-ocean/10 px-3 py-2 rounded-xl border border-maritime-ocean/20 backdrop-blur-sm max-w-[280px] md:max-w-[300px] text-center leading-tight">
+                <span>💎</span>
+                <span><span className="font-bold text-maritime-orange">Founder’s Reward:</span> Get 3 months of NAVAI Premium completely FREE at launch.</span>
+              </div>
+
+
+            </div>
+
+            <Link
+              href="/login?role=client"
+              className="group relative inline-flex items-center gap-3 px-8 py-4 bg-maritime-ocean/10 border border-maritime-ocean/30 text-maritime-teal rounded-2xl font-bold transition-all hover:scale-105 hover:bg-maritime-ocean/20 w-full md:w-auto justify-center"
+            >
+              <Globe className="w-6 h-6" />
+              <div className="flex flex-col items-start leading-none text-left">
+                <span className="text-[10px] uppercase tracking-tighter opacity-60">Start Now</span>
+                <span className="text-xl">Web Platform</span>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+
+      </div>
+
+      {/* --- ECOSYSTEM BRIDGE SECTION (NEW) --- */}
+      <section className="w-full mt-16 md:mt-24 max-w-6xl mx-auto px-6 z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+          {/* Connector Line (Desktop) */}
+          <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-[80%] h-[1px] bg-gradient-to-r from-transparent via-maritime-ocean/30 to-transparent" />
+          <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-maritime-midnight border border-maritime-ocean/30 p-2 rounded-full text-maritime-teal shadow-[0_0_20px_rgba(0,255,255,0.1)]">
+            <RefreshCw className="w-4 h-4 animate-spin-slow" />
+          </div>
+
+          {/* Web Platform Card */}
+          <div className="relative group overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-maritime-midnight to-[#0f2444] border border-maritime-ocean/20 p-8 md:p-10 hover:border-maritime-ocean/50 transition-all duration-500 shadow-2xl">
+            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Monitor className="w-32 h-32 text-maritime-teal" />
+            </div>
+
+            <div className="relative z-10 flex flex-col h-full items-start">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-maritime-ocean/10 border border-maritime-ocean/20 text-maritime-teal text-[10px] uppercase tracking-widest mb-6">
+                <Wifi className="w-3 h-3" />
+                <span>Online Console</span>
+              </div>
+
+              <h3 className="text-2xl md:text-3xl font-light text-white mb-2">Commandant's <span className="font-bold text-maritime-ocean">Console</span></h3>
+              <p className="text-maritime-teal/70 text-sm leading-relaxed mb-8 max-w-sm">
+                The ultimate planning station. Access powerful voyage calculation tools, expansive charts, and fleet management on the big screen.
+              </p>
+
+              <div className="mt-auto">
+                <Link href="/login?role=client" className="inline-flex items-center gap-2 text-xs font-bold text-white uppercase tracking-widest hover:text-maritime-orange transition-colors">
+                  <span>Launch Web App</span>
+                  <div className="w-4 h-[1px] bg-current" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* iOS App Card */}
+          <div className="relative group overflow-hidden rounded-[2.5rem] bg-gradient-to-bl from-maritime-midnight to-[#0f2444] border border-maritime-orange/20 p-8 md:p-10 hover:border-maritime-orange/50 transition-all duration-500 shadow-2xl">
+            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Smartphone className="w-32 h-32 text-maritime-orange" />
+            </div>
+
+            <div className="relative z-10 flex flex-col h-full items-start">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-maritime-orange/10 border border-maritime-orange/20 text-maritime-orange text-[10px] uppercase tracking-widest mb-6">
+                <WifiOff className="w-3 h-3" />
+                <span>100% Offline Capable</span>
+              </div>
+
+              <h3 className="text-2xl md:text-3xl font-light text-white mb-2">The Pocket <span className="font-bold text-maritime-orange">First Mate</span></h3>
+              <p className="text-white/60 text-sm leading-relaxed mb-8 max-w-sm">
+                Total independence at sea. All calculation engines, regulation libraries, and safety tools work without signal. Designed for the bridge.
+              </p>
+
+              <div className="mt-auto">
+                <button onClick={() => setIsWaitlistOpen(true)} className="inline-flex items-center gap-2 text-xs font-bold text-white uppercase tracking-widest hover:text-maritime-orange transition-colors">
+                  <span>Get Early Access</span>
+                  <div className="w-4 h-[1px] bg-current" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured App Subsection - Horizontal Tools Scroll (MOVED UP) */}
+      <section className="w-full mt-8 md:mt-12 relative z-10">
+        <div className="max-w-6xl mx-auto px-6 mb-12">
+          <h2 className="text-3xl md:text-5xl font-light text-maritime-brass leading-tight">
+            Professional <span className="text-maritime-ocean font-bold">Toolbox</span>
+          </h2>
+          <div className="flex items-center gap-2 mt-3 text-xs font-bold text-maritime-teal uppercase tracking-widest opacity-80">
+            <Laptop className="w-3 h-3" />
+            <span>Available across devices. Syncs seamlessly.</span>
+          </div>
+          <p className="text-maritime-teal/70 mt-4 max-w-2xl leading-relaxed">
+            A complete suite of utilities designed for the modern officer. From high-seas navigation to cargo operations, access everything you need in one unified interface.
+          </p>
+        </div>
+
+        {/* Horizontal Scroll Container */}
+        <div className="w-full overflow-x-auto pb-12 px-6 no-scrollbar snap-x snap-mandatory">
+          <div className="flex gap-6 w-max">
+            {[
+              { title: "Great Circle", cat: "Routing", desc: "Calculate shortest routes and distance savings.", Component: PreviewGreatCircle },
+              { title: "Global Weather", cat: "Meteo", desc: "Live satellite overlays and safety advisories.", Component: PreviewWeather },
+              { title: "Ship Stability", cat: "Safety", desc: "Pro-grade GZ curve analysis and IMO compliance checks.", Component: PreviewStability },
+              { title: "Anchor Logic", cat: "Operations", desc: "Calculate scope and swing radius instantly.", Component: PreviewAnchor },
+              { title: "Sea Service", cat: "Career", desc: "Track your onboard time and discharge book.", Component: PreviewSeaService },
+              { title: "Contract Mgr", cat: "Career", desc: "Countdown to sign-off and leave management.", Component: PreviewContract },
+
+              // NEW ADDITIONS (Generic)
+              { title: "ETA Calculator", cat: "Navigation", desc: "Voyage planning with timezone logic.", Component: (props: any) => <PreviewGeneric icon={Clock} label="ETA Planner" {...props} /> },
+              { title: "Draft Survey", cat: "Cargo", desc: "Hydrostatic calculations for loading.", Component: (props: any) => <PreviewGeneric icon={Maximize} label="Draft Survey Pro" {...props} /> },
+              { title: "Mercator Sail", cat: "Navigation", desc: "Rhumb line course and distance.", Component: (props: any) => <PreviewGeneric icon={MapPin} label="Mercator Sailing" {...props} /> },
+              { title: "Plane Sailing", cat: "Navigation", desc: "Short voyage coastal calculations.", Component: (props: any) => <PreviewGeneric icon={Compass} label="Plane Sailing" {...props} /> },
+              { title: "Squat Calc", cat: "Safety", desc: "Under-keel clearance estimator.", Component: (props: any) => <PreviewGeneric icon={TrendingUp} label="Dynamic Squat" {...props} /> },
+              { title: "Unit Convert", cat: "Utils", desc: "Maritime specific unit conversions.", Component: (props: any) => <PreviewGeneric icon={RefreshCw} label="Conversion Suite" {...props} /> },
+              { title: "Compass Error", cat: "Bridge", desc: "Gyro and magnetic variance tools.", Component: (props: any) => <PreviewGeneric icon={Crosshair} label="Compass Logic" {...props} /> },
+            ].map((tool, i) => (
+              <div
+                key={i}
+                className="snap-center w-[280px] md:w-[320px] h-[420px] glass p-0 rounded-[2.5rem] border border-white/10 flex flex-col justify-between group hover:border-maritime-ocean/30 transition-all duration-500 bg-maritime-midnight/50 overflow-hidden relative"
+              >
+                {/* Preview Widget Area */}
+                <div className="h-[240px] w-full bg-maritime-midnight ring-1 ring-white/5 relative group-hover:scale-105 transition-transform duration-700">
+                  <tool.Component />
+                  {/* Glass Overlay for interaction hint */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-maritime-midnight to-transparent opacity-50" />
+                </div>
+
+                {/* Card Content */}
+                <div className="p-6 pt-2 flex-1 flex flex-col justify-between relative z-10">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-widest text-maritime-orange font-bold">{tool.cat}</span>
+                    <h3 className="text-xl font-bold text-white mt-1 leading-tight">{tool.title}</h3>
+                    <p className="text-xs text-white/50 mt-2 leading-relaxed line-clamp-2">
+                      {tool.desc}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-maritime-teal opacity-60 group-hover:opacity-100 transition-opacity mt-4">
+                    <span>Launch Tool</span>
+                    <div className="w-4 h-[1px] bg-maritime-teal" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- ACADEMY SECTION (Categories) --- */}
+      <section className="w-full relative z-10 pb-24">
+        <div className="max-w-6xl mx-auto px-6 mb-8 flex justify-between items-end">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="p-1.5 bg-maritime-orange/20 rounded-lg text-maritime-orange"><GraduationCap className="w-4 h-4" /></span>
+              <span className="text-[10px] uppercase font-black tracking-[0.3em] text-maritime-orange">Knowledge Base</span>
+            </div>
+            <h2 className="text-3xl font-light text-white">Maritime <span className="font-bold text-maritime-orange">Academy</span></h2>
+            <p className="text-maritime-teal/60 mt-2 text-sm flex items-center gap-2">
+              <Smartphone className="w-3 h-3" />
+              Study anywhere. Download for offline review on iOS.
+            </p>
+          </div>
+          <div className="hidden md:block text-right">
+            <div className="text-[10px] text-white/40 uppercase tracking-widest mb-1">Library</div>
+            <div className="text-sm font-bold text-white">6 Professional Categories</div>
+          </div>
+        </div>
+
+        {/* Categories Horizontal Scroll */}
+        <div className="w-full overflow-x-auto pb-12 px-6 no-scrollbar snap-x snap-mandatory">
+          <div className="flex gap-6 w-max">
+            {[
+              { title: "Regulations", code: "INTL-REG", icon: Shield, diff: "Foundational" },
+              { title: "Navigation", code: "NAV-CORE", icon: Compass, diff: "Advanced" },
+              { title: "Ship Operations", code: "OPS-GEN", icon: Anchor, diff: "Practical" },
+              { title: "Meteorology", code: "MET-ATM", icon: Wind, diff: "Scientific" },
+              { title: "Cargo Work", code: "CGO-LOG", icon: Maximize, diff: "Technical" },
+              { title: "Maritime English", code: "COM-ENG", icon: Globe, diff: "Standard" },
+              { title: "Safety & Security", code: "SAF-SEC", icon: Crosshair, diff: "Critical" },
+              { title: "Nav Architecture", code: "NAV-ARCH", icon: Layers, diff: "Engineering" },
+            ].map((mod, i) => (
+              <div key={i} className="snap-center shrink-0 w-[260px] h-[340px] group cursor-pointer">
+                <PreviewAcademyModule icon={mod.icon} code={mod.code} title={mod.title} difficulty={mod.diff} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>   {/* Demo Section */}
+      <section className="w-full mt-20 md:mt-32 pb-24 z-10">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl font-bold text-maritime-brass uppercase tracking-widest mb-2 font-mono">Test the Bridge</h2>
+          <p className="text-sm text-maritime-teal/50">Experience the Captain Mariner engine live.</p>
+        </div>
+        <DemoChat />
+      </section>
+
+      {/* Simple Footer */}
+      <footer className="w-full max-w-6xl border-t border-maritime-ocean/10 py-12 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] text-maritime-teal/30 uppercase tracking-[0.2em] z-10">
+        <div className="flex items-center gap-2">
+          <Ship className="w-4 h-4" />
+          <span>© 2026 NavAI Navigation Systems</span>
+        </div>
+        <div className="flex gap-8 items-center">
+          <a href="https://www.instagram.com/navai.app" target="_blank" rel="noopener noreferrer" className="hover:text-maritime-orange transition-colors">
+            <Instagram className="w-4 h-4" />
+          </a>
+          <a href="#" className="hover:text-maritime-orange transition-colors">Privacy Policy</a>
+          <a href="#" className="hover:text-maritime-orange transition-colors">Terms of Service</a>
+          <a href="mailto:hello@navaitech.com" className="hover:text-maritime-orange transition-colors">Contact Signal</a>
+        </div>
+      </footer>
+    </main>
+  );
+}
+
+function AppleIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      stroke="none"
+    >
+      <path d="M17.05 20.28c-.96.95-2.18 1.78-3.37 1.72-1.12-.05-1.55-.71-2.92-.71-1.37 0-1.85.7-2.92.74-1.14.04-2.28-.73-3.23-1.66-2-1.93-2.98-5.34-1.37-8.11.8-1.37 2.21-2.24 3.75-2.27 1.15-.02 2.24.78 2.95.78.7 0 2.02-.97 3.39-.83.58.02 2.21.23 3.26 1.76-.08.05-1.93 1.12-1.9 3.36.03 2.69 2.33 3.6 2.36 3.61-.02.05-.36 1.25-1.25 2.53M12.03 7.25c-.02-1.55.85-3.03 2.02-3.89 1.17-.86 2.76-1.14 4.14-.99.02 1.63-.82 3.16-1.99 4.02-1.15.84-2.88 1.18-4.17.86z" />
+    </svg>
+  );
+}
+
+function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
+
+function Ship(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 21c.6.5 1.2 1 2.5 1 1.4 0 2.1-.5 2.5-1 .4-.5 1.1-1 2.5-1 1.4 0 2.1.5 2.5 1 .4.5 1.1 1 2.5 1 1.4 0 2.1-.5 2.5-1 .4-.5 1.1-1 2.5-1 1.4 0 2.1.5 2.5 1" />
+      <path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.2.6 4.3 1.62 6" />
+      <path d="M12 10V2" />
+      <path d="M12 2v3l3 2" />
+    </svg>
+  );
+}
