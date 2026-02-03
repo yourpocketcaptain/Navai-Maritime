@@ -36,9 +36,9 @@ export default function DemoChat() {
                         className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                     >
                         <div
-                            className={`max-w-[85%] p-4 rounded-xl text-sm leading-relaxed ${msg.role === "user"
-                                    ? "bg-maritime-ocean text-maritime-midnight ml-12 rounded-tr-none"
-                                    : "bg-maritime-midnight border border-maritime-ocean/30 text-maritime-teal mr-12 rounded-tl-none font-mono"
+                            className={`max-w-[90%] md:max-w-[85%] p-4 rounded-xl text-sm leading-relaxed ${msg.role === "user"
+                                ? "bg-maritime-ocean text-maritime-midnight ml-4 md:ml-12 rounded-tr-none"
+                                : "bg-maritime-midnight border border-maritime-ocean/30 text-maritime-teal mr-4 md:mr-12 rounded-tl-none font-mono"
                                 }`}
                         >
                             {msg.role === "captain" && (

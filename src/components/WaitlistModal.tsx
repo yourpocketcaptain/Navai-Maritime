@@ -98,7 +98,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                         initial={{ scale: 0.95, opacity: 0, y: 20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                        className="relative w-full max-w-md bg-[#0a192f] border border-maritime-ocean/30 rounded-3xl p-8 shadow-2xl shadow-maritime-ocean/20 overflow-hidden"
+                        className="relative w-full max-w-md bg-[#0a192f] border border-maritime-ocean/30 rounded-3xl p-6 md:p-8 shadow-2xl shadow-maritime-ocean/20 overflow-hidden"
                     >
                         {/* Glossy Overlay */}
                         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
