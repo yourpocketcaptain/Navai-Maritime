@@ -3,7 +3,7 @@
 import { useAuth } from "@/components/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
-import { Anchor, LogIn, Key, Mail, AlertTriangle, UserPlus, CheckCircle } from "lucide-react";
+import { Anchor, LogIn, Key, Mail, AlertTriangle, UserPlus, CheckCircle, ArrowLeft } from "lucide-react";
 
 function LoginContent() {
     const { user, loginWithEmail, signUpWithEmail, isAdmin, isClient, loading } = useAuth();
@@ -68,6 +68,15 @@ function LoginContent() {
 
     return (
         <main className="min-h-screen bg-maritime-midnight relative overflow-hidden flex flex-col items-center justify-center px-6">
+            {/* Back to Home Button */}
+            <button
+                onClick={() => router.push("/")}
+                className="absolute top-8 left-8 md:top-12 md:left-12 flex items-center gap-2 text-maritime-teal/60 hover:text-maritime-teal transition-colors text-xs uppercase tracking-[0.2em] group z-20"
+            >
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                Return to Home
+            </button>
+
             {/* Decorative Background */}
             <div className="absolute top-0 left-0 w-full h-full -z-10 opacity-10">
                 <div className="absolute top-[-20%] left-[-10%] w-[120%] h-[120%] animate-pulse rotate-3 bg-gradient-to-b from-maritime-ocean to-transparent blur-[120px]" />

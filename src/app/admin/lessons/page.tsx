@@ -3,9 +3,10 @@
 import { useAuth } from "@/components/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase";
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
-import { Anchor, ArrowLeft, Send, Save, Loader2, Plus, Edit2, Trash2, Search } from "lucide-react";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from "@/lib/firebase";
+import { Anchor, ArrowLeft, Send, Save, Loader2, Plus, Edit2, Trash2, Search, FileText, Upload } from "lucide-react";
 import RichTextEditor from "@/components/RichTextEditor";
 
 interface Lesson {
@@ -38,6 +39,8 @@ export default function ManageLessonsPage() {
     const [content, setContent] = useState("");
     const [category, setCategory] = useState("");
     const [order, setOrder] = useState(0);
+    const [pdfFile, setPdfFile] = useState<File | null>(null);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
     useEffect(() => {
         if (!authLoading && (!user || !isAdmin)) {
@@ -101,9 +104,11 @@ export default function ManageLessonsPage() {
                 setTeoriaDocId(teoriaDoc.id);
                 // Try different common field names for content
                 setContent(teoriaData.content || teoriaData.text || teoriaData.teoria || teoriaData.description || "");
+                setPdfUrl(teoriaData.pdfUrl || teoriaData.pdf || teoriaData.file || teoriaData.url || teoriaData.attachment || null);
             } else {
                 setTeoriaDocId(null);
                 setContent("");
+                setPdfUrl(null);
             }
 
             setActiveTab("form");
@@ -121,7 +126,10 @@ export default function ManageLessonsPage() {
         setTitle("");
         setContent("");
         setCategory("");
+        setCategory("");
         setOrder(lessons.length > 0 ? Math.max(...lessons.map(l => l.order)) + 1 : 1);
+        setPdfFile(null);
+        setPdfUrl(null);
         setActiveTab("form");
     };
 
@@ -157,17 +165,30 @@ export default function ManageLessonsPage() {
             };
 
             let currentLessonId = editingId;
+            let uploadedPdfUrl = pdfUrl;
+
+            // Handle PDF Upload if file selected
+            if (pdfFile) {
+                const storageRef = ref(storage, `pdfs/${Date.now()}_${pdfFile.name}`);
+                const snapshot = await uploadBytes(storageRef, pdfFile);
+                uploadedPdfUrl = await getDownloadURL(snapshot.ref);
+            }
 
             if (editingId) {
                 // Update root lesson
                 await updateDoc(doc(db, "lessons", editingId), lessonData);
 
+                const updatedTeoriaData = {
+                    ...teoriaData,
+                    pdfUrl: uploadedPdfUrl
+                };
+
                 // Update or create doc in 'teoria' subcollection
                 if (teoriaDocId) {
-                    await updateDoc(doc(db, "lessons", editingId, "teoria", teoriaDocId), teoriaData);
+                    await updateDoc(doc(db, "lessons", editingId, "teoria", teoriaDocId), updatedTeoriaData);
                 } else {
                     await addDoc(collection(db, "lessons", editingId, "teoria"), {
-                        ...teoriaData,
+                        ...updatedTeoriaData,
                         createdAt: serverTimestamp(),
                     });
                 }
@@ -180,9 +201,14 @@ export default function ManageLessonsPage() {
                 });
                 currentLessonId = newDoc.id;
 
+                const newTeoriaData = {
+                    ...teoriaData,
+                    pdfUrl: uploadedPdfUrl
+                };
+
                 // Create doc in 'teoria' subcollection
                 await addDoc(collection(db, "lessons", currentLessonId, "teoria"), {
-                    ...teoriaData,
+                    ...newTeoriaData,
                     createdAt: serverTimestamp(),
                 });
             }
@@ -360,6 +386,30 @@ export default function ManageLessonsPage() {
                                 placeholder="Write your lesson content here... Bold, lists, and headers are supported."
                             />
                             <p className="text-[9px] text-white/20 italic">Content is automatically converted to Markdown for app compatibility.</p>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="text-[10px] uppercase tracking-widest text-maritime-orange font-bold">PDF Material (Optional)</label>
+                            <div className="flex items-center gap-4">
+                                <label className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition-colors">
+                                    <Upload className="w-4 h-4 text-maritime-teal" />
+                                    <span className="text-sm text-white/60">{pdfFile ? pdfFile.name : "Upload PDF"}</span>
+                                    <input
+                                        type="file"
+                                        accept="application/pdf"
+                                        onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+                                        className="hidden"
+                                    />
+                                </label>
+                                {pdfUrl && !pdfFile && (
+                                    <div className="flex items-center gap-2 px-4 py-3 bg-maritime-ocean/10 border border-maritime-ocean/30 rounded-xl">
+                                        <FileText className="w-4 h-4 text-maritime-ocean" />
+                                        <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-maritime-ocean hover:underline">
+                                            Current PDF
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
