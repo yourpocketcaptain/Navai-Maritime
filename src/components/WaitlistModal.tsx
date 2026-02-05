@@ -137,7 +137,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                                         Join the <span className="text-maritime-orange font-bold">Waitlist</span>
                                     </h2>
                                     <p className="text-maritime-teal/60 text-sm leading-relaxed">
-                                        Secure your spot for the iOS beta and claim your Founder's Reward.
+                                        Secure your spot for the iOS beta and claim your <span className="text-maritime-orange font-bold">3 Months Free</span> Founder's Reward.
                                     </p>
                                 </div>
 
@@ -180,8 +180,9 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                             </div>
                         )}
                     </motion.div>
-                </div>
-            )}
-        </AnimatePresence>
+                </div >
+            )
+            }
+        </AnimatePresence >
     );
 }

@@ -75,7 +75,10 @@ export default function Home() {
 
         <p className="text-lg md:text-2xl text-maritime-teal/80 max-w-3xl mx-auto font-light leading-relaxed mb-12">
           Master maritime navigation with powerful tools on the <span className="font-bold text-white">Web</span> and <span className="font-bold text-maritime-orange">Offline</span> on iOS.
-          <br /><span className="text-maritime-teal font-bold animate-pulse block mt-2 text-base md:text-lg">Completely FREE for Early Adopters.</span>
+          <br />
+          <br />
+          <span className="block mt-6 text-base md:text-lg text-maritime-teal/80 font-light">
+          </span>
         </p>
 
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
@@ -94,19 +97,24 @@ export default function Home() {
             </div>
           </Link>
 
-          <button
-            onClick={() => setIsWaitlistOpen(true)}
-            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-maritime-orange border border-maritime-orange text-maritime-midnight rounded-2xl font-bold transition-all hover:scale-105 hover:bg-maritime-orange/90 w-full md:w-auto justify-center shadow-[0_0_20px_rgba(255,165,0,0.3)] hover:shadow-[0_0_30px_rgba(255,165,0,0.5)] min-w-[240px]"
-          >
-            <div className="absolute -top-3 -right-3 z-20 bg-white text-maritime-midnight text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter shadow-lg rotate-12">
-              Limited Spots
-            </div>
-            <AppleIcon className="w-6 h-6" />
-            <div className="flex flex-col items-start leading-none text-left">
-              <span className="text-[10px] uppercase tracking-tighter opacity-80">Free iOS Beta</span>
-              <span className="text-xl">Join Waitlist</span>
-            </div>
-          </button>
+          <div className="flex flex-col items-center gap-2 w-full md:w-auto">
+            <button
+              onClick={() => setIsWaitlistOpen(true)}
+              className="group relative inline-flex items-center gap-3 px-8 py-4 bg-maritime-orange border border-maritime-orange text-maritime-midnight rounded-2xl font-bold transition-all hover:scale-105 hover:bg-maritime-orange/90 w-full justify-center shadow-[0_0_20px_rgba(255,165,0,0.3)] hover:shadow-[0_0_30px_rgba(255,165,0,0.5)] min-w-[240px]"
+            >
+              <div className="absolute -top-3 -right-3 z-20 bg-white text-maritime-midnight text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter shadow-lg rotate-12">
+                3 Months Free
+              </div>
+              <AppleIcon className="w-6 h-6" />
+              <div className="flex flex-col items-start leading-none text-left">
+                <span className="text-[10px] uppercase tracking-tighter opacity-80">Free iOS Beta</span>
+                <span className="text-xl">Join Waitlist</span>
+              </div>
+            </button>
+            <p className="text-[10px] md:text-xs text-maritime-teal/50 font-mono tracking-wide">
+              *3 Months <span className="text-maritime-orange">Premium FREE</span> for early adopters
+            </p>
+          </div>
         </div>
       </section>
 

@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { toJpeg } from 'html-to-image';
 import {
     Navigation, ZoomIn, ZoomOut, Trash2,
-    Activity, Keyboard, Send, Plus, Save, BookOpen, ChevronRight, X
+    Activity, Keyboard, Send, Plus, Save, BookOpen, ChevronRight, X, Camera, Compass
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import { db } from "@/lib/firebase";
@@ -27,23 +28,25 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<L.Map | null>(null);
     const routeLayerRef = useRef<L.LayerGroup | null>(null);
+    const uiContainerRef = useRef<HTMLDivElement | null>(null);
+    const controlsContainerRef = useRef<HTMLDivElement | null>(null);
     const seamarkLayerRef = useRef<L.LayerGroup | null>(null);
 
     const { user } = useAuth();
     const [selectedPoint, setSelectedPoint] = useState<{ lat: number, lon: number } | null>(null);
     const [waypoints, setWaypoints] = useState<{ lat: number, lon: number }[]>([]);
-    const [maxWaypoints, setMaxWaypoints] = useState(2);
+    const [maxWaypoints, setMaxWaypoints] = useState(20);
     const [routeType, setRouteType] = useState<'gc' | 'rhumb' | 'both'>('both');
     const [isLoading, setIsLoading] = useState(true);
-    const [distances, setDistances] = useState<{ gc: number, rhumb: number }[]>([]);
+    const [distances, setDistances] = useState<{ gc: number, rhumb: number, bearing: number }[]>([]);
     const [isManualMode, setIsManualMode] = useState(false);
-    const [isLibraryOpen, setIsLibraryOpen] = useState(false);
     const [savedRoutes, setSavedRoutes] = useState<any[]>([]);
     const [routeName, setRouteName] = useState("");
     const [isSaving, setIsSaving] = useState(false);
     const [manualInputs, setManualInputs] = useState({
         lat: "", lon: ""
     });
+    const [isPlotting, setIsPlotting] = useState(true);
 
     // Create Icons
     const createSeamarkIcon = (type: string, color: string) => {
@@ -117,7 +120,10 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
         if (Math.abs(dL) > Math.PI) dL = dL > 0 ? -(2 * Math.PI - dL) : (2 * Math.PI + dL);
         const rhumbDist = Math.sqrt(dLat * dLat + q * q * dL * dL) * R;
 
-        return { gc: gcDist, rhumb: rhumbDist };
+        let bearing = toDeg(Math.atan2(dL, dPhi));
+        if (bearing < 0) bearing += 360;
+
+        return { gc: gcDist, rhumb: rhumbDist, bearing };
     };
 
     // Initialize Map
@@ -222,6 +228,7 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
     };
 
     const deleteRoute = async (routeId: string) => {
+        if (!user) return;
         if (!confirm("Are you sure you want to delete this route?")) return;
         try {
             await deleteDoc(doc(db, `users/${user.uid}/routes`, routeId));
@@ -231,9 +238,16 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
         }
     };
 
+    // Expose delete function to window for Leaflet markers
     useEffect(() => {
-        if (isLibraryOpen) loadSavedRoutes();
-    }, [isLibraryOpen]);
+        (window as any).deleteWaypoint = (index: number) => {
+            setWaypoints(prev => prev.filter((_, i) => i !== index));
+        };
+    }, []);
+
+    useEffect(() => {
+        loadSavedRoutes();
+    }, []);
 
     // Reactive Map Click Handler (Prevents stale closures)
     useEffect(() => {
@@ -244,8 +258,10 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
             const point = { lat, lon: lng };
 
             if (variant === 'tactical') {
+                if (!isPlotting) return;
+
                 setWaypoints(prev => {
-                    if (prev.length >= maxWaypoints) return [point];
+                    if (prev.length >= maxWaypoints) return prev;
                     return [...prev, point];
                 });
             } else {
@@ -263,7 +279,7 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
         return () => {
             mapRef.current?.off('click', handleMapClick);
         };
-    }, [waypoints, maxWaypoints]);
+    }, [waypoints, maxWaypoints, isPlotting]);
 
     const handleManualPlot = () => {
         const l = parseFloat(manualInputs.lat);
@@ -273,7 +289,7 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
             if (l >= -90 && l <= 90 && ln >= -180 && ln <= 180) {
                 const point = { lat: l, lon: ln };
                 setWaypoints(prev => {
-                    if (prev.length >= maxWaypoints) return [point];
+                    if (prev.length >= maxWaypoints) return prev;
                     return [...prev, point];
                 });
                 setIsManualMode(false);
@@ -291,27 +307,48 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
         routeLayerRef.current.clearLayers();
 
         if (waypoints.length > 0) {
-            const segmentDistances: { gc: number, rhumb: number }[] = [];
+            const segmentDistances: { gc: number, rhumb: number, bearing: number }[] = [];
 
             waypoints.forEach((wp, idx) => {
                 const pos: [number, number] = [wp.lat, wp.lon];
 
-                // Marker
-                L.circleMarker(pos, {
-                    radius: 6,
-                    color: idx === 0 ? '#D4AF37' : (idx === waypoints.length - 1 ? '#00e5ff' : '#ffffff'),
-                    fillColor: '#0c1930',
-                    fillOpacity: 1,
-                    weight: 2
-                }).addTo(routeLayerRef.current!)
-                    .bindTooltip(`WP ${idx + 1}${idx === 0 ? ' (ST)' : (idx === waypoints.length - 1 ? ' (END)' : '')}`, { permanent: true, direction: 'top', className: 'tactical-tooltip' });
+                // Custom DivIcon for Waypoint with Delete Button
+                const iconHtml = `
+                    <div class="relative group">
+                        <div class="w-3 h-3 rounded-full border-2 border-white ${idx === 0 ? 'bg-[#D4AF37]' : (idx === waypoints.length - 1 ? 'bg-[#00e5ff]' : 'bg-[#0c1930]')}"></div>
+                        <button onclick="event.stopPropagation(); window.deleteWaypoint(${idx})" class="absolute -top-4 -right-4 w-4 h-4 bg-red-500/80 hover:bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto">
+                            ×
+                        </button>
+                    </div>
+                `;
 
-                // Path to previous WP
+                const icon = L.divIcon({
+                    html: iconHtml,
+                    className: 'custom-wp-marker',
+                    iconSize: [12, 12],
+                    iconAnchor: [6, 6]
+                });
+
+                L.marker(pos, { icon }).addTo(routeLayerRef.current!)
+                    .bindTooltip(`
+                        <div class="flex flex-col items-center">
+                            <span class="font-bold">WP ${idx + 1}</span>
+                            <span class="text-[9px] font-mono opacity-80">${wp.lat.toFixed(4)}, ${wp.lon.toFixed(4)}</span>
+                        </div>
+                    `, {
+                        permanent: true,
+                        direction: 'bottom',
+                        offset: [0, 10],
+                        className: 'tactical-tooltip'
+                    });
+
+                // Path and Heading Label
                 if (idx > 0) {
                     const prev = waypoints[idx - 1];
                     const dists = calculateDistances(prev, wp);
                     segmentDistances.push(dists);
 
+                    // Draw Route Line
                     if (routeType === 'gc' || routeType === 'both') {
                         const gcPoints = getGreatCirclePoints([prev.lat, prev.lon], [wp.lat, wp.lon]);
                         L.polyline(gcPoints, { color: '#D4AF37', weight: 3, className: 'tactical-path' }).addTo(routeLayerRef.current!);
@@ -325,6 +362,20 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
                             className: 'tactical-path opacity-70'
                         }).addTo(routeLayerRef.current!);
                     }
+
+                    // Add Heading Label at Midpoint
+                    const midLat = (prev.lat + wp.lat) / 2;
+                    const midLon = (prev.lon + wp.lon) / 2;
+                    const bearingHtml = `<div class="bg-[#0c1930]/80 text-[#00e5ff] text-[8px] font-black px-1 rounded border border-[#00e5ff]/30 backdrop-blur-sm">${dists.bearing.toFixed(0)}°</div>`;
+
+                    L.marker([midLat, midLon], {
+                        icon: L.divIcon({
+                            html: bearingHtml,
+                            className: 'bearing-label',
+                            iconSize: [30, 12],
+                            iconAnchor: [15, 6]
+                        })
+                    }).addTo(routeLayerRef.current!);
                 }
             });
 
@@ -333,6 +384,92 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
             setDistances([]);
         }
     }, [waypoints, routeType]);
+
+    const handleExportImage = async (route: any) => {
+        if (!mapContainerRef.current) return;
+
+        // Load route to ensure it's visible
+        setWaypoints(route.waypoints);
+
+        // Fit bounds to show entire route
+        if (mapRef.current && route.waypoints.length > 0) {
+            const bounds = L.latLngBounds(route.waypoints.map((wp: any) => [wp.lat, wp.lon]));
+            mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+        }
+
+        // Wait for map to settle/render
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        // Create Stats Overlay for the Image
+        const overlay = document.createElement('div');
+        overlay.style.position = 'absolute';
+        overlay.style.bottom = '20px';
+        overlay.style.left = '20px';
+        overlay.style.background = 'rgba(12, 25, 48, 0.9)';
+        overlay.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+        overlay.style.borderRadius = '12px';
+        overlay.style.padding = '16px';
+        overlay.style.zIndex = '100000'; // Ensure it's above everything
+        overlay.style.color = 'white';
+        overlay.style.fontFamily = 'monospace';
+        overlay.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+        overlay.style.display = 'flex';
+        overlay.style.flexDirection = 'column';
+        overlay.style.gap = '4px';
+
+        // Hide UI Panels
+        if (uiContainerRef.current) {
+            uiContainerRef.current.style.display = 'none';
+        }
+        if (controlsContainerRef.current) {
+            controlsContainerRef.current.style.display = 'none';
+        }
+        overlay.style.gap = '4px';
+        overlay.innerHTML = `
+            <div style="font-size: 10px; text-transform: uppercase; color: rgba(255,255,255,0.4); font-weight: 900; letter-spacing: 0.1em;">Voyage Plan</div>
+            <div style="font-size: 18px; font-weight: 900; color: white;">${route.name}</div>
+            <div style="display: flex; gap: 12px; margin-top: 8px;">
+                <div>
+                    <div style="font-size: 8px; text-transform: uppercase; color: rgba(255,255,255,0.4);">Total Distance</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #00e5ff;">${route.totalDistance.toFixed(1)} NM</div>
+                </div>
+                <div>
+                    <div style="font-size: 8px; text-transform: uppercase; color: rgba(255,255,255,0.4);">Waypoints</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #D4AF37;">${route.waypoints.length}</div>
+                </div>
+            </div>
+            <div style="font-size: 8px; text-transform: uppercase; color: rgba(255,255,255,0.2); margin-top: 10px;">Generated by NAVAI</div>
+        `;
+        mapContainerRef.current.appendChild(overlay);
+
+        try {
+            const dataUrl = await toJpeg(mapContainerRef.current, {
+                quality: 0.9,
+                backgroundColor: '#001a33',
+                pixelRatio: 2
+            });
+            const link = document.createElement('a');
+            link.download = `NAVAI-${route.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.jpg`;
+            link.href = dataUrl;
+            link.click();
+        } catch (error) {
+            console.error("Export failed:", error);
+            alert("Could not export image.");
+        } finally {
+            if (mapContainerRef.current.contains(overlay)) {
+                mapContainerRef.current.removeChild(overlay);
+            }
+            // Restore UI Panels
+            if (uiContainerRef.current) {
+                uiContainerRef.current.style.display = 'flex';
+            }
+            if (controlsContainerRef.current) {
+                controlsContainerRef.current.style.display = 'flex';
+            }
+        }
+    };
+
+    const [isPanelMinimized, setIsPanelMinimized] = useState(false);
 
     return (
         <section className={`flex flex-col w-full ${variant === 'weather' ? 'h-full' : ''} ${className}`}>
@@ -367,192 +504,238 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
                     />
 
                     {variant === 'tactical' && (
-                        <div className="absolute top-8 left-8 z-[1001] space-y-4">
-                            <div className="glass bg-[#0c1930]/60 backdrop-blur-2xl border border-white/10 p-6 rounded-[2rem] min-w-[320px]">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <Activity className="w-4 h-4 text-maritime-ocean animate-pulse" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Voyage Planner</span>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => setIsLibraryOpen(!isLibraryOpen)}
-                                            className={`p-2 rounded-lg transition-colors ${isLibraryOpen ? 'bg-maritime-ocean text-black' : 'hover:bg-white/5 text-white/20'}`}
-                                            title="Saved Routes"
-                                        >
-                                            <BookOpen className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() => setIsManualMode(!isManualMode)}
-                                            className={`p-2 rounded-lg transition-colors ${isManualMode ? 'bg-maritime-brass text-black' : 'hover:bg-white/5 text-white/20'}`}
-                                            title="Manual Entry"
-                                        >
-                                            <Keyboard className="w-4 h-4" />
-                                        </button>
-                                        {waypoints.length > 0 && (
+                        <div ref={uiContainerRef} className="absolute top-8 left-8 z-[1001] flex flex-col gap-4 max-h-[85vh] pointer-events-none">
+                            {/* Main Panel */}
+                            <div className="pointer-events-auto shadow-2xl">
+                                <div className={`glass bg-[#0c1930]/60 backdrop-blur-2xl border border-white/10 p-6 rounded-[2rem] transition-all duration-300 overflow-y-auto custom-scrollbar max-h-[50vh] ${isPanelMinimized ? 'w-auto min-w-[200px]' : 'w-[260px]'}`}>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <Activity className="w-4 h-4 text-maritime-ocean animate-pulse" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Voyage Planner</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            {!isPanelMinimized && (
+                                                <>
+
+                                                    <button
+                                                        onClick={() => {
+                                                            const newMode = !isManualMode;
+                                                            setIsManualMode(newMode);
+                                                            if (newMode) setIsPlotting(true);
+                                                        }}
+                                                        className={`p-2 rounded-lg transition-colors ${isManualMode ? 'bg-maritime-brass text-black' : 'hover:bg-white/5 text-white/20'}`}
+                                                        title="Manual Entry"
+                                                    >
+                                                        <Keyboard className="w-4 h-4" />
+                                                    </button>
+                                                    {waypoints.length > 0 && (
+                                                        <button
+                                                            onClick={() => {
+                                                                setWaypoints([]);
+                                                                setDistances([]);
+                                                                setSelectedPoint(null);
+                                                                setIsPlotting(true);
+                                                            }}
+                                                            className="p-2 hover:bg-white/5 rounded-lg text-white/20 hover:text-red-400 transition-colors"
+                                                            title="Clear Route"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                    <div className="w-px h-6 bg-white/10 mx-1 self-center" />
+                                                </>
+                                            )}
                                             <button
-                                                onClick={() => {
-                                                    setWaypoints([]);
-                                                    setDistances([]);
-                                                    setSelectedPoint(null);
-                                                }}
-                                                className="p-2 hover:bg-white/5 rounded-lg text-white/20 hover:text-red-400 transition-colors"
-                                                title="Clear Route"
+                                                onClick={() => setIsPanelMinimized(!isPanelMinimized)}
+                                                className="p-2 hover:bg-white/5 rounded-lg text-white/20 hover:text-white transition-colors"
                                             >
-                                                <Trash2 className="w-4 h-4" />
+                                                {isPanelMinimized ? <ChevronRight className="w-4 h-4 rotate-90" /> : <ChevronRight className="w-4 h-4 -rotate-90" />}
                                             </button>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Waypoint Count Selector */}
-                                <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl mb-4 border border-white/5">
-                                    <span className="text-[9px] font-black uppercase text-white/40">Max Waypoints</span>
-                                    <div className="flex gap-1">
-                                        {[2, 3, 5, 8].map(n => (
-                                            <button
-                                                key={n}
-                                                onClick={() => setMaxWaypoints(n)}
-                                                className={`w-7 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${maxWaypoints === n ? 'bg-maritime-ocean text-black' : 'hover:bg-white/10 text-white/40'}`}
-                                            >
-                                                {n}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {isManualMode ? (
-                                    <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div className="space-y-1">
-                                                <label className="text-[8px] uppercase text-white/40 font-black">Latitude</label>
-                                                <input
-                                                    type="text"
-                                                    placeholder="00.000"
-                                                    value={manualInputs.lat}
-                                                    onChange={(e) => setManualInputs({ ...manualInputs, lat: e.target.value })}
-                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-mono text-white focus:border-maritime-brass/50 outline-none"
-                                                />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <label className="text-[8px] uppercase text-white/40 font-black">Longitude</label>
-                                                <input
-                                                    type="text"
-                                                    placeholder="00.000"
-                                                    value={manualInputs.lon}
-                                                    onChange={(e) => setManualInputs({ ...manualInputs, lon: e.target.value })}
-                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-mono text-white focus:border-maritime-brass/50 outline-none"
-                                                />
-                                            </div>
                                         </div>
-                                        <button
-                                            onClick={handleManualPlot}
-                                            disabled={waypoints.length >= maxWaypoints}
-                                            className="w-full py-3 bg-maritime-ocean text-black rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform active:scale-95 disabled:opacity-50"
-                                        >
-                                            <Plus className="w-3 h-3" /> Add Waypoint {waypoints.length + 1}/{maxWaypoints}
-                                        </button>
                                     </div>
-                                ) : waypoints.length >= 2 ? (
-                                    <div className="space-y-4">
-                                        <div className="font-mono space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-                                            {distances.map((d, i) => (
-                                                <div key={i} className="flex items-center gap-3 text-[10px]">
-                                                    <div className="w-1 h-6 bg-maritime-ocean/20 rounded-full" />
-                                                    <div className="flex-1 text-white/40">Leg {i + 1}</div>
-                                                    <div className="text-white font-black">{(routeType === 'gc' ? d.gc : d.rhumb).toFixed(1)} NM</div>
-                                                </div>
-                                            ))}
-                                        </div>
+                                    {!isPanelMinimized && (
+                                        <div>
+                                            {/* Status / Done Button */}
+                                            <div className="mb-4">
+                                                {isPlotting ? (
+                                                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[9px] font-black uppercase text-maritime-ocean">Plotting Mode Active</span>
+                                                            <span className="text-[8px] text-white/30">Click map to add waypoints ({waypoints.length}/{maxWaypoints})</span>
+                                                        </div>
+                                                        {waypoints.length > 0 && (
+                                                            <button
+                                                                onClick={() => { setIsPlotting(false); setIsManualMode(false); }}
+                                                                className="px-3 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg text-[9px] font-black uppercase hover:bg-green-500/30 transition-all"
+                                                            >
+                                                                Done
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col gap-3 p-3 bg-white/5 rounded-xl border border-white/5">
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex flex-col">
+                                                                <span className="text-[9px] font-black uppercase text-white/40">Route Locked</span>
+                                                                <span className="text-[8px] text-white/30">{waypoints.length} Waypoints Set</span>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => setIsPlotting(true)}
+                                                                className="px-3 py-1 bg-white/5 text-white/60 border border-white/10 rounded-lg text-[9px] font-black uppercase hover:bg-white/10 hover:text-white transition-all"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                        </div>
 
-                                        <div className="p-4 bg-maritime-brass/10 border border-maritime-brass/20 rounded-xl text-center">
-                                            <span className="text-[8px] uppercase text-maritime-brass block mb-1">Total Voyage Distance</span>
-                                            <div className="text-2xl font-black text-white">
-                                                {distances.reduce((acc, d) => acc + (routeType === 'gc' ? d.gc : d.rhumb), 0).toLocaleString()} <span className="text-xs">NM</span>
+                                                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Voyage Name..."
+                                                                value={routeName}
+                                                                onChange={(e) => setRouteName(e.target.value)}
+                                                                className="col-span-2 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white focus:border-maritime-ocean/50 outline-none"
+                                                            />
+                                                            <button
+                                                                onClick={saveRoute}
+                                                                disabled={isSaving || !routeName}
+                                                                className="col-span-1 py-2 bg-maritime-ocean text-black rounded-lg text-[9px] font-black uppercase flex items-center justify-center gap-1 hover:bg-white transition-colors disabled:opacity-50"
+                                                            >
+                                                                <Save className="w-3 h-3" /> Save Route
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
-                                        </div>
 
-                                        {/* Great Circle Savings Display */}
-                                        {distances.length > 0 && (
-                                            <div className="mt-4 px-4 py-3 bg-white/5 rounded-xl border border-white/5 flex flex-col gap-1">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-[9px] uppercase text-white/40 font-black">Great Circle Savings</span>
-                                                    <span className="text-sm font-black text-maritime-ocean">
-                                                        {(distances.reduce((acc, d) => acc + d.rhumb, 0) - distances.reduce((acc, d) => acc + d.gc, 0)).toFixed(1)} <span className="text-[9px] text-white/40">NM</span>
-                                                    </span>
+                                            {isManualMode ? (
+                                                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div className="space-y-1">
+                                                            <label className="text-[8px] uppercase text-white/40 font-black">Latitude</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="00.000"
+                                                                value={manualInputs.lat}
+                                                                onChange={(e) => setManualInputs({ ...manualInputs, lat: e.target.value })}
+                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-mono text-white focus:border-maritime-brass/50 outline-none"
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <label className="text-[8px] uppercase text-white/40 font-black">Longitude</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="00.000"
+                                                                value={manualInputs.lon}
+                                                                onChange={(e) => setManualInputs({ ...manualInputs, lon: e.target.value })}
+                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-mono text-white focus:border-maritime-brass/50 outline-none"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={handleManualPlot}
+                                                        disabled={waypoints.length >= maxWaypoints}
+                                                        className="w-full py-3 bg-maritime-ocean text-black rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform active:scale-95 disabled:opacity-50"
+                                                    >
+                                                        <Plus className="w-3 h-3" /> Add Waypoint {waypoints.length + 1}/{maxWaypoints}
+                                                    </button>
                                                 </div>
-                                                <div className="text-[8px] text-white/30 font-mono leading-tight">
-                                                    Distance saved by following the earth's curvature (Great Circle) vs constant heading (Rhumb Line).
+                                            ) : waypoints.length >= 2 ? (
+                                                <div className="space-y-4">
+                                                    <div className="font-mono space-y-2 max-h-[150px] overflow-y-auto pr-2 custom-scrollbar">
+                                                        {distances.map((d, i) => (
+                                                            <div key={i} className="flex items-center gap-3 text-[10px]">
+                                                                <div className="w-1 h-6 bg-maritime-ocean/20 rounded-full" />
+                                                                <div className="flex-1 text-white/40 flex flex-col">
+                                                                    <span>Leg {i + 1}</span>
+                                                                    <span className="text-[9px] text-maritime-brass font-black uppercase">COG {d.bearing.toFixed(0)}°</span>
+                                                                </div>
+                                                                <div className="text-white font-black">{(routeType === 'gc' ? d.gc : d.rhumb).toFixed(1)} NM</div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+                                                    <div className="p-4 bg-maritime-brass/10 border border-maritime-brass/20 rounded-xl text-center">
+                                                        <span className="text-[8px] uppercase text-maritime-brass block mb-1">Total Voyage Distance</span>
+                                                        <div className="text-2xl font-black text-white">
+                                                            {distances.reduce((acc, d) => acc + (routeType === 'gc' ? d.gc : d.rhumb), 0).toLocaleString()} <span className="text-xs">NM</span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Great Circle Savings Display */}
+                                                    {distances.length > 0 && (
+                                                        <div className="mt-4 px-4 py-3 bg-white/5 rounded-xl border border-white/5 flex flex-col gap-1">
+                                                            <div className="flex items-center justify-between">
+                                                                <span className="text-[9px] uppercase text-white/40 font-black">Great Circle Savings</span>
+                                                                <span className="text-sm font-black text-maritime-ocean">
+                                                                    {(distances.reduce((acc, d) => acc + d.rhumb, 0) - distances.reduce((acc, d) => acc + d.gc, 0)).toFixed(1)} <span className="text-[9px] text-white/40">NM</span>
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-[8px] text-white/30 font-mono leading-tight">
+                                                                Distance saved by following the earth's curvature (Great Circle) vs constant heading (Rhumb Line).
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="py-8 text-center border-2 border-dashed border-white/5 rounded-2xl">
-                                        <div className="text-[10px] text-white/20 uppercase font-black leading-relaxed">
-                                            {waypoints.length === 0 ? (
-                                                <>Click map to set<br /><span className="text-maritime-brass text-xs">Start Waypoint</span></>
                                             ) : (
-                                                <>WP 1 Set: <span className="text-maritime-brass">{waypoints[0].lat.toFixed(2)}N</span><br />
-                                                    Click to set <span className="text-maritime-ocean text-xs">Next Waypoints</span></>
+                                                <div className="py-8 text-center border-2 border-dashed border-white/5 rounded-2xl">
+                                                    <div className="text-[10px] text-white/20 uppercase font-black leading-relaxed">
+                                                        {waypoints.length === 0 ? (
+                                                            <span>Click map to set<br /><span className="text-maritime-brass text-xs">Start Waypoint</span></span>
+                                                        ) : (
+                                                            <span>WP 1 Set: <span className="text-maritime-brass">{waypoints[0].lat.toFixed(2)}N</span><br />
+                                                                Click to set <span className="text-maritime-ocean text-xs">Next Waypoints</span></span>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             )}
                                         </div>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )}
 
-                    {/* Controls */}
-                    <div className="absolute top-8 right-8 z-[1001] flex flex-col gap-2">
-                        <button
-                            onClick={() => mapRef.current?.setView([20, 0], 2.5)}
-                            className="p-4 glass bg-[#0c1930]/40 border border-white/10 rounded-2xl text-maritime-ocean hover:text-white transition-colors"
-                            title="Global View"
-                        >
-                            <Navigation className="w-5 h-5" />
-                        </button>
-                        <button onClick={() => mapRef.current?.zoomIn()} className="p-4 glass bg-[#0c1930]/40 border border-white/10 rounded-2xl text-maritime-brass hover:text-white transition-colors"><ZoomIn className="w-5 h-5" /></button>
-                        <button onClick={() => mapRef.current?.zoomOut()} className="p-4 glass bg-[#0c1930]/40 border border-white/10 rounded-2xl text-maritime-brass hover:text-white transition-colors"><ZoomOut className="w-5 h-5" /></button>
-                        <button onClick={() => { setWaypoints([]); setDistances([]); setIsManualMode(false); }} className="p-4 glass bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 hover:bg-red-500/20 transition-all"><Trash2 className="w-5 h-5" /></button>
-                    </div>
-
-                    {/* Library Sidebar (Drawer) */}
-                    {variant === 'tactical' && (
-                        <div className={`absolute top-0 right-0 h-full z-[1002] transition-transform duration-500 ease-in-out ${isLibraryOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-                            <div className="w-80 h-full glass bg-[#0c1930]/90 backdrop-blur-3xl border-l border-white/10 p-8 flex flex-col">
-                                <div className="flex items-center justify-between mb-8">
-                                    <h4 className="text-lg font-black text-maritime-brass uppercase tracking-tighter">Route Library</h4>
-                                    <button onClick={() => setIsLibraryOpen(false)} className="p-2 hover:bg-white/5 rounded-full text-white/40"><X className="w-5 h-5" /></button>
+                            {/* Saved Routes Panel (Ventanita inferior) */}
+                            <div className="pointer-events-auto glass bg-[#0c1930]/60 backdrop-blur-2xl border border-white/10 p-4 rounded-[1.5rem] w-[260px] animate-in fade-in slide-in-from-top-4 duration-300 shadow-2xl flex flex-col gap-3 max-h-[30vh]">
+                                <div className="flex items-center justify-between px-2">
+                                    <div className="flex items-center gap-2">
+                                        <BookOpen className="w-3 h-3 text-maritime-ocean" />
+                                        <span className="text-[9px] font-black uppercase text-white/60 tracking-wider">Saved Routes</span>
+                                    </div>
                                 </div>
 
-                                <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+                                <div className="overflow-y-auto custom-scrollbar flex flex-col gap-2">
                                     {savedRoutes.length === 0 ? (
-                                        <div className="h-full flex flex-col items-center justify-center opacity-20 text-center gap-4">
-                                            <BookOpen className="w-12 h-12" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest">No routes archived</span>
-                                        </div>
+                                        <div className="py-6 text-center text-[9px] text-white/20 uppercase font-black">No saved routes</div>
                                     ) : (
                                         savedRoutes.map((route: any) => (
-                                            <div key={route.id} className="group p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-maritime-ocean/40 transition-all">
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <div className="font-bold text-sm text-white truncate max-w-[140px]">{route.name}</div>
-                                                    <button onClick={() => deleteRoute(route.id)} className="p-1 text-white/10 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="w-3 h-3" /></button>
+                                            <div key={route.id} className="group p-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-all flex items-center justify-between">
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-bold text-white leading-none mb-1">{route.name}</span>
+                                                    <span className="text-[8px] text-white/40 uppercase font-mono">{route.waypoints.length} WPTs • {route.totalDistance.toFixed(0)} NM</span>
                                                 </div>
-                                                <div className="flex items-center justify-between text-[10px]">
-                                                    <span className="text-maritime-ocean font-black">{route.waypoints.length} WPTs</span>
-                                                    <span className="text-white/30">{route.totalDistance.toFixed(0)} NM</span>
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            setWaypoints(route.waypoints);
+                                                            mapRef.current?.setView([route.waypoints[0].lat, route.waypoints[0].lon], 4);
+                                                        }}
+                                                        className="px-2 py-1 bg-maritime-ocean/20 text-maritime-ocean rounded text-[9px] font-black uppercase hover:bg-maritime-ocean hover:text-black transition-colors"
+                                                    >
+                                                        Load
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); handleExportImage(route); }}
+                                                        className="p-1.5 bg-white/5 text-white/40 hover:text-maritime-ocean hover:bg-maritime-ocean/10 rounded-lg transition-colors"
+                                                        title="Export Image"
+                                                    >
+                                                        <Camera className="w-3 h-3" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => deleteRoute(route.id)}
+                                                        className="p-1.5 bg-white/5 text-white/40 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                                    >
+                                                        <Trash2 className="w-3 h-3" />
+                                                    </button>
                                                 </div>
-                                                <button
-                                                    onClick={() => {
-                                                        setWaypoints(route.waypoints);
-                                                        setIsLibraryOpen(false);
-                                                        mapRef.current?.setView([route.waypoints[0].lat, route.waypoints[0].lon], 4);
-                                                    }}
-                                                    className="w-full mt-3 py-2 bg-maritime-ocean/10 text-maritime-ocean rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-maritime-ocean hover:text-black transition-all"
-                                                >
-                                                    Load Route <ChevronRight className="w-3 h-3" />
-                                                </button>
                                             </div>
                                         ))
                                     )}
@@ -560,6 +743,25 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
                             </div>
                         </div>
                     )}
+
+                    {/* Controls */}
+                    <div ref={controlsContainerRef} className="absolute top-8 right-8 z-[1001] flex flex-col gap-2">
+                        <button
+                            onClick={() => mapRef.current?.setView([20, 0], 2.5)}
+                            className="p-4 glass bg-[#0c1930]/40 border border-white/10 rounded-2xl text-maritime-ocean hover:text-white transition-colors"
+                            title="Global View"
+                        >
+                            <Navigation className="w-5 h-5" />
+                        </button>
+                        <div className="p-4 glass bg-[#0c1930]/40 border border-white/10 rounded-2xl flex items-center justify-center text-maritime-brass" title="Compass">
+                            <Compass className="w-5 h-5 animate-[spin_10s_linear_infinite]" />
+                        </div>
+                        <button onClick={() => mapRef.current?.zoomIn()} className="p-4 glass bg-[#0c1930]/40 border border-white/10 rounded-2xl text-maritime-brass hover:text-white transition-colors"><ZoomIn className="w-5 h-5" /></button>
+                        <button onClick={() => mapRef.current?.zoomOut()} className="p-4 glass bg-[#0c1930]/40 border border-white/10 rounded-2xl text-maritime-brass hover:text-white transition-colors"><ZoomOut className="w-5 h-5" /></button>
+                        <button onClick={() => { setWaypoints([]); setDistances([]); setIsManualMode(false); }} className="p-4 glass bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 hover:bg-red-500/20 transition-all"><Trash2 className="w-5 h-5" /></button>
+                    </div>
+
+
                 </div>
             </div>
 
@@ -584,6 +786,6 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
             `}</style>
-        </section>
-    );
+        </section >
+    )
 }
