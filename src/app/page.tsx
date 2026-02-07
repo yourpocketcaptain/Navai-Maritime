@@ -3,7 +3,7 @@
 import { useState } from "react";
 import DemoChat from "@/components/DemoChat";
 import Link from "next/link";
-import WaitlistModal from "@/components/WaitlistModal";
+
 import {
   PreviewAcademyModule,
   PreviewAnchor,
@@ -41,11 +41,11 @@ import {
 } from "lucide-react";
 
 export default function Home() {
-  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+
 
   return (
     <main className="min-h-screen relative overflow-hidden bg-maritime-midnight text-white font-sans selection:bg-maritime-orange/30">
-      <WaitlistModal isOpen={isWaitlistOpen} onClose={() => setIsWaitlistOpen(false)} />
+
 
       {/* Decorative Background */}
       <div className="absolute top-0 left-0 w-full h-full -z-10 opacity-10 pointer-events-none">
@@ -98,22 +98,22 @@ export default function Home() {
           </Link>
 
           <div className="flex flex-col items-center gap-2 w-full md:w-auto">
-            <button
-              onClick={() => setIsWaitlistOpen(true)}
+            <a
+              href="https://apps.apple.com/gb/app/navai-ai-maritime-assistant/id6757674541"
+              target="_blank"
+              rel="noopener noreferrer"
               className="group relative inline-flex items-center gap-3 px-8 py-4 bg-maritime-orange border border-maritime-orange text-maritime-midnight rounded-2xl font-bold transition-all hover:scale-105 hover:bg-maritime-orange/90 w-full justify-center shadow-[0_0_20px_rgba(255,165,0,0.3)] hover:shadow-[0_0_30px_rgba(255,165,0,0.5)] min-w-[240px]"
             >
               <div className="absolute -top-3 -right-3 z-20 bg-white text-maritime-midnight text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter shadow-lg rotate-12">
-                3 Months Free
+                Available Now
               </div>
               <AppleIcon className="w-6 h-6" />
               <div className="flex flex-col items-start leading-none text-left">
-                <span className="text-[10px] uppercase tracking-tighter opacity-80">Free iOS Beta</span>
-                <span className="text-xl">Join Waitlist</span>
+                <span className="text-[10px] uppercase tracking-tighter opacity-80">Download on the</span>
+                <span className="text-xl">App Store</span>
               </div>
-            </button>
-            <p className="text-[10px] md:text-xs text-maritime-teal/50 font-mono tracking-wide">
-              *3 Months <span className="text-maritime-orange">Premium FREE</span> for early adopters
-            </p>
+            </a>
+
           </div>
         </div>
       </section>
@@ -271,10 +271,15 @@ export default function Home() {
               ))}
             </ul>
 
-            <button onClick={() => setIsWaitlistOpen(true)} className="inline-flex items-center gap-2 text-sm font-bold text-white uppercase tracking-widest hover:text-maritime-orange transition-colors pt-4">
-              <span>Get Early Access</span>
+            <a
+              href="https://apps.apple.com/gb/app/navai-ai-maritime-assistant/id6757674541"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-bold text-white uppercase tracking-widest hover:text-maritime-orange transition-colors pt-4"
+            >
+              <span>Download on the App Store</span>
               <div className="w-8 h-[1px] bg-current" />
-            </button>
+            </a>
           </div>
         </div>
       </section>
