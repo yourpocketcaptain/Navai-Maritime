@@ -107,6 +107,7 @@ export default function FleetToolsPage() {
                             <ToolEntry id="anchor" title="Anchor Chain Calculator" icon={<Anchor />} expanded={expanded} onToggle={handleToggle}><AnchorChainCalculator /></ToolEntry>
                             <ToolEntry id="radius" title="Swinging Radius" icon={<RefreshCw />} expanded={expanded} onToggle={handleToggle}><SwingingRadiusTool /></ToolEntry>
                             <ToolEntry id="gyro" title="Gyro & Compass Error" icon={<Crosshair />} expanded={expanded} onToggle={handleToggle}><CompassErrorTool /></ToolEntry>
+                            <ToolEntry id="nav_pro" title="Navigation Pro: Currents & Wind" icon={<Navigation />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><NavigationProTool /></ToolEntry>
                         </ToolGroup>
                     </div>
 
@@ -124,6 +125,7 @@ export default function FleetToolsPage() {
                         <ClusterLabel icon={<RefreshCw />} title="Conversion Suite" />
                         <ToolGroup>
                             <ToolEntry id="coord" title="Lat/Lon Universal Converter" icon={<MapPin />} expanded={expanded} onToggle={handleToggle}><LatLonConverter /></ToolEntry>
+                            <ToolEntry id="unit_conv" title="Professional Unit Converter" icon={<RefreshCw />} expanded={expanded} onToggle={handleToggle}><UnitConverterTool /></ToolEntry>
                             <ToolEntry id="arc" title="Arc & Time (15º/hr)" icon={<RefreshCw />} expanded={expanded} onToggle={handleToggle}><ArcTimeTool /></ToolEntry>
                         </ToolGroup>
                     </div>
@@ -1508,6 +1510,292 @@ function ArcTimeTool() {
 }
 
 // --- SHARED UI PRIMITIVES ---
+
+
+function NavigationProTool() {
+    const [subTab, setSubTab] = useState<'current' | 'radar' | 'wind'>('current');
+
+    return (
+        <div className="space-y-8">
+            <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
+                {(['current', 'radar', 'wind'] as const).map((t) => (
+                    <button
+                        key={t}
+                        onClick={() => setSubTab(t)}
+                        className={`flex-1 py-3 text-[10px] uppercase font-black tracking-widest rounded-xl transition-all ${subTab === t ? 'bg-maritime-ocean text-maritime-midnight shadow-lg' : 'text-white/40 hover:text-white'}`}
+                    >
+                        {t === 'current' ? 'Current & Ct/Rv' : t === 'radar' ? 'Radar Plotting' : 'Wind Calc'}
+                    </button>
+                ))}
+            </div>
+
+            {subTab === 'current' && <TriangleOfVelocitiesTool />}
+            {subTab === 'radar' && <RadarPlottingTool />}
+            {subTab === 'wind' && <WindCalculatorTool />}
+        </div>
+    );
+}
+
+function TriangleOfVelocitiesTool() {
+    const [rv, setRv] = useState('045'); // Ground Course (True Course)
+    const [v, setV] = useState('12');    // Ship Speed (Water)
+    const [d, setD] = useState('180');   // Current Direction (Set)
+    const [f, setF] = useState('2.5');   // Current Speed (Drift)
+
+    const results = useMemo(() => {
+        const rvRad = toRad(parseFloat(rv) || 0);
+        const vVal = parseFloat(v) || 1;
+        const dRad = toRad(parseFloat(d) || 0);
+        const fVal = parseFloat(f) || 0;
+
+        // Triangle of Velocities math (Ct calculation)
+        // Sin(drift) / f = Sin(angle_current_rv) / v
+        const angleRel = dRad - rvRad;
+        const driftAngRad = Math.asin((fVal * Math.sin(angleRel)) / vVal) || 0;
+        const driftDeg = toDeg(driftAngRad);
+
+        const ct = (parseFloat(rv) - driftDeg + 360) % 360;
+
+        // Vg (Speed over Ground)
+        const vg = vVal * Math.cos(driftAngRad) + fVal * Math.cos(angleRel);
+
+        return { ct, vg, drift: driftDeg };
+    }, [rv, v, d, f]);
+
+    return (
+        <div className="space-y-8">
+            <div className="p-6 bg-maritime-ocean/5 border border-maritime-ocean/20 rounded-[2.5rem]">
+                <p className="text-[11px] text-white/40 leading-relaxed italic text-center">
+                    Triangle of Velocities: Calculate **Course to Steer (Ct)** and **Speed Over Ground (Vg)** by correcting your intended path (**Rv**) for current.
+                </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <InputBox label="True Course (Rv/Ref)" val={rv} setVal={setRv} />
+                <InputBox label="Speed thru Water (V)" val={v} setVal={setV} />
+                <InputBox label="Current Dir (Set)" val={d} setVal={setD} />
+                <InputBox label="Current Speed (Drift)" val={f} setVal={setF} />
+            </div>
+
+            <div className="p-10 bg-black/60 rounded-[3rem] border border-white/5 flex flex-col md:flex-row gap-8 items-center justify-center">
+                <div className="text-center">
+                    <span className="text-[10px] uppercase font-black text-maritime-ocean tracking-widest">Course to Steer (Ct)</span>
+                    <div className="text-5xl font-black text-white font-mono mt-2">{results.ct.toFixed(1)}º</div>
+                    <p className="text-[10px] text-white/30 mt-1 uppercase font-bold">Steer this on Bridge</p>
+                </div>
+                <div className="w-px h-16 bg-white/10 hidden md:block" />
+                <div className="text-center">
+                    <span className="text-[10px] uppercase font-black text-maritime-brass tracking-widest">Speed over Ground (Vg)</span>
+                    <div className="text-5xl font-black text-white font-mono mt-2">{results.vg.toFixed(1)} <span className="text-xl">kts</span></div>
+                    <p className="text-[10px] text-white/30 mt-1 uppercase font-bold">Estimated SOG</p>
+                </div>
+            </div>
+
+            <HowToUse
+                title="How to use Triangle of Velocities"
+                steps={[
+                    "Enter your intended path or ground course (Rv).",
+                    "Input your ship's speed through the water (V).",
+                    "Enter the direction toward which the current is flowing (Set).",
+                    "Input the speed of the current (Drift).",
+                    "The tool provides the Course to Steer (Ct) to maintain your track."
+                ]}
+            />
+        </div>
+    );
+}
+
+function RadarPlottingTool() {
+    const [r1, setR1] = useState('12'); // Range 1
+    const [b1, setB1] = useState('045'); // Bearing 1
+    const [r2, setR2] = useState('8');   // Range 2
+    const [b2, setB2] = useState('042'); // Bearing 2
+    const [int, setInt] = useState('6');   // Interval in minutes
+
+    const results = useMemo(() => {
+        const dist1 = parseFloat(r1) || 0;
+        const brg1 = toRad(parseFloat(b1) || 0);
+        const dist2 = parseFloat(r2) || 0;
+        const brg2 = toRad(parseFloat(b2) || 0);
+        const minutes = parseFloat(int) || 1;
+
+        // Relative Motion Vector
+        const x1 = dist1 * Math.sin(brg1);
+        const y1 = dist1 * Math.cos(brg1);
+        const x2 = dist2 * Math.sin(brg2);
+        const y2 = dist2 * Math.cos(brg2);
+
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const relDist = Math.sqrt(dx * dx + dy * dy);
+        const relCourse = (toDeg(Math.atan2(dx, dy)) + 360) % 360;
+        const relSpeed = (relDist / minutes) * 60;
+
+        // CPA Calculation
+        const cpa = Math.abs(dx * y1 - dy * x1) / relDist || 0;
+
+        // TCPA
+        const distToCPA = Math.sqrt(Math.max(0, dist1 * dist1 - cpa * cpa));
+        const tcpa = (distToCPA / relSpeed) * 60;
+
+        return { cpa, tcpa, relSpeed, relCourse };
+    }, [r1, b1, r2, b2, int]);
+
+    return (
+        <div className="space-y-8">
+            <div className="p-6 bg-red-500/5 border border-red-500/20 rounded-[2.5rem]">
+                <p className="text-[11px] text-red-100/40 leading-relaxed italic text-center">
+                    **Radar Plotting Assistant**: Calculate CPA and TCPA from two timed observations. Essential for collision avoidance and maintaining safe passing distance.
+                </p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="md:col-span-2 space-y-4">
+                    <h4 className="text-[9px] uppercase font-black text-white/20">Observation 1 (0 min)</h4>
+                    <InputBox label="Range (NM)" val={r1} setVal={setR1} />
+                    <InputBox label="Bearing (º)" val={b1} setVal={setB1} />
+                </div>
+                <div className="flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center">
+                        <ArrowLeft className="rotate-180 text-white/20" />
+                    </div>
+                </div>
+                <div className="md:col-span-2 space-y-4">
+                    <h4 className="text-[9px] uppercase font-black text-white/20">Observation 2</h4>
+                    <InputBox label="Range (NM)" val={r2} setVal={setR2} />
+                    <InputBox label="Bearing (º)" val={b2} setVal={setB2} />
+                    <InputBox label="Interval (min)" val={int} setVal={setInt} />
+                </div>
+            </div>
+
+            <div className="p-10 bg-black/60 rounded-[3rem] border border-white/5 flex flex-col md:flex-row gap-8 items-center justify-center">
+                <div className="text-center">
+                    <span className="text-[10px] uppercase font-black text-red-500 tracking-widest">CPA Distance</span>
+                    <div className={`text-5xl font-black font-mono mt-2 ${results.cpa < 1 ? 'text-red-500 animate-pulse' : 'text-white'}`}>{results.cpa.toFixed(2)} <span className="text-xl">nm</span></div>
+                </div>
+                <div className="w-px h-16 bg-white/10 hidden md:block" />
+                <div className="text-center">
+                    <span className="text-[10px] uppercase font-black text-maritime-ocean tracking-widest">Time to CPA</span>
+                    <div className="text-5xl font-black text-white font-mono mt-2">{results.tcpa.toFixed(1)} <span className="text-xl">min</span></div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <ResultBox label="Rel. Speed" val={`${results.relSpeed.toFixed(1)} kts`} />
+                <ResultBox label="Rel. Course" val={`${results.relCourse.toFixed(1)}º`} />
+            </div>
+        </div>
+    );
+}
+
+function WindCalculatorTool() {
+    const [hdg, setHdg] = useState('000'); // Ship Heading
+    const [spd, setSpd] = useState('15');  // Ship Speed
+    const [awBrg, setAwBrg] = useState('045'); // Apparent Wind Relative Bearing
+    const [awSpd, setAwSpd] = useState('25');  // Apparent Wind Speed
+
+    const results = useMemo(() => {
+        const v_ship = parseFloat(spd) || 0;
+        const alpha = toRad(parseFloat(awBrg) || 0); // Relative angle from bow
+        const v_app = parseFloat(awSpd) || 0;
+
+        // V_true_x = V_app * sin(alpha)
+        // V_true_y = V_app * cos(alpha) - v_ship
+        const vtx = v_app * Math.sin(alpha);
+        const vty = v_app * Math.cos(alpha) - v_ship;
+
+        const v_true = Math.sqrt(vtx * vtx + vty * vty);
+        let trueRelBrg = toDeg(Math.atan2(vtx, vty));
+        trueRelBrg = (trueRelBrg + 360) % 360;
+
+        const trueDir = (parseFloat(hdg) + trueRelBrg) % 360;
+
+        return { v_true, trueRelBrg, trueDir };
+    }, [hdg, spd, awBrg, awSpd]);
+
+    return (
+        <div className="space-y-8">
+            <div className="p-6 bg-maritime-ocean/5 border border-maritime-ocean/20 rounded-[2.5rem]">
+                <p className="text-[11px] text-white/40 leading-relaxed italic text-center">
+                    Derive **True Wind** speed and direction from Apparent Wind readings and ship movement. Essential for heavy weather navigation and docking.
+                </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <InputBox label="Ship Heading (ºT)" val={hdg} setVal={setHdg} />
+                <InputBox label="Ship Speed (kts)" val={spd} setVal={setSpd} />
+                <InputBox label="App. Wind Rel. Brg (º)" val={awBrg} setVal={setAwBrg} />
+                <InputBox label="App. Wind Speed (kts)" val={awSpd} setVal={setAwSpd} />
+            </div>
+
+            <div className="p-10 bg-black/60 rounded-[3rem] border border-white/5 flex flex-col md:flex-row gap-8 items-center justify-center">
+                <div className="text-center">
+                    <span className="text-[10px] uppercase font-black text-maritime-ocean tracking-widest">True Wind Direction</span>
+                    <div className="text-5xl font-black text-white font-mono mt-2">{results.trueDir.toFixed(0)}º T</div>
+                </div>
+                <div className="w-px h-16 bg-white/10 hidden md:block" />
+                <div className="text-center">
+                    <span className="text-[10px] uppercase font-black text-maritime-brass tracking-widest">True Wind Speed</span>
+                    <div className="text-5xl font-black text-white font-mono mt-2">{results.v_true.toFixed(1)} <span className="text-xl">kts</span></div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function UnitConverterTool() {
+    const [category, setCategory] = useState<'distance' | 'speed' | 'pressure' | 'temp'>('distance');
+    const [val, setVal] = useState('1');
+
+    const units: Record<string, any> = {
+        distance: { NM: 1, KM: 1.852, M: 1852, FT: 6076.12, FATH: 1012.69 },
+        speed: { KTS: 1, 'KM/H': 1.852, 'M/S': 0.51444, MPH: 1.15078 },
+        pressure: { 'hPa/mb': 1, inHg: 0.02953, mmHg: 0.75006, PSI: 0.0145 },
+    };
+
+    const convert = (v: number, cat: string) => {
+        if (cat === 'temp') {
+            return {
+                Celsius: v,
+                Fahrenheit: (v * 9 / 5) + 32,
+                Kelvin: v + 273.15
+            };
+        }
+        const base = v; // Assume input is first unit in list
+        const results: any = {};
+        Object.entries(units[cat]).forEach(([u, factor]: [string, any]) => {
+            results[u] = base * factor;
+        });
+        return results;
+    };
+
+    const results = convert(parseFloat(val) || 0, category);
+
+    return (
+        <div className="space-y-8">
+            <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
+                {(['distance', 'speed', 'pressure', 'temp'] as const).map((c) => (
+                    <button
+                        key={c}
+                        onClick={() => setCategory(c)}
+                        className={`flex-1 py-3 text-[10px] uppercase font-black tracking-widest rounded-xl transition-all ${category === c ? 'bg-maritime-ocean text-maritime-midnight shadow-lg' : 'text-white/40 hover:text-white'}`}
+                    >
+                        {c}
+                    </button>
+                ))}
+            </div>
+
+            <div className="space-y-4">
+                <InputBox label={`Input Value (${Object.keys(category === 'temp' ? { Default: 'C' } : units[category])[0]})`} val={val} setVal={setVal} />
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {Object.entries(results).map(([u, v]: [string, any]) => (
+                        <ResultBox key={u} label={u} val={v.toFixed(category === 'temp' ? 1 : 4)} />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
 
 function InputBox({ label, val, setVal, type = "number" }: any) {
     return (
