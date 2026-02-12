@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://navai.app/sitemap.xml
+Sitemap: https://navaitech.com/sitemap.xml

@@ -385,7 +385,7 @@ export default function HomeClient() {
                         <span>© 2026 NavAI Navigation Systems</span>
                     </div>
                     <div className="flex gap-8 items-center flex-wrap justify-center">
-                        <a href="https://www.instagram.com/navai.app" target="_blank" rel="noopener noreferrer" className="hover:text-maritime-orange transition-colors">
+                        <a href="https://www.instagram.com/navaitech" target="_blank" rel="noopener noreferrer" className="hover:text-maritime-orange transition-colors">
                             <Instagram className="w-4 h-4" />
                         </a>
                         <Link href="/blog" className="hover:text-maritime-orange transition-colors">Blog</Link>

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "NavAI | Your Digital First Mate",
     description: "Professional maritime tools and AI navigation. Always ready, even offline.",
-    url: "https://navai.app",
+    url: "https://navaitech.com",
     siteName: "NavAI",
     images: [
       {

@@ -121,7 +121,7 @@ function LoginContent() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-maritime-clean placeholder-white/20 focus:outline-none focus:border-maritime-ocean/50 focus:bg-black/40 transition-all font-mono text-sm"
-                                placeholder="captain@navai.app"
+                                placeholder="captain@navaitech.com"
                                 required
                             />
                         </div>
