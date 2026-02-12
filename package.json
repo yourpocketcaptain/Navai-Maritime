@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy": "npm run build && npx wrangler pages deploy out --project-name navai-maritime"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
