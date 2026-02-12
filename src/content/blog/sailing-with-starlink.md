@@ -3,7 +3,7 @@ title: "Sailing with Starlink: 5 Apps you need when you have (some) signal"
 date: "2026-02-18"
 description: "Starlink has changed offshore life, but you still need a reliable offline strategy. Here are the top apps for the modern cruiser."
 category: "Product"
-image: "https://images.unsplash.com/photo-1567622485669-2703f8f10645?auto=format&fit=crop&q=90&w=1200"
+image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&q=90&w=1200"
 author: "NavAI Team"
 ---
 
