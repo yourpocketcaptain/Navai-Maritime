@@ -1,6 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "AIzaSyB0CXgw1wWCrtB1G9Ct15iX7WWEtm9eVXE";
+const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+if (!GEMINI_API_KEY) {
+  throw new Error("NEXT_PUBLIC_GEMINI_API_KEY is not defined in environment variables");
+}
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const model = genAI.getGenerativeModel({

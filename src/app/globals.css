@@ -20,6 +20,19 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Prose Typography for Blog Content */
+.prose-maritime h1 { font-size: 2.5rem; font-weight: 800; color: white; margin-bottom: 2rem; margin-top: 3rem; }
+.prose-maritime h2 { font-size: 1.8rem; font-weight: 700; color: var(--color-maritime-ocean); margin-bottom: 1.5rem; margin-top: 2.5rem; }
+.prose-maritime h3 { font-size: 1.4rem; font-weight: 700; color: white; margin-bottom: 1rem; margin-top: 2rem; }
+.prose-maritime p { font-size: 1.125rem; line-height: 1.8; color: rgba(233, 216, 166, 0.7); margin-bottom: 1.5rem; }
+.prose-maritime ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1.5rem; }
+.prose-maritime li { margin-bottom: 0.5rem; color: rgba(233, 216, 166, 0.7); }
+.prose-maritime strong { color: white; font-weight: 700; }
+.prose-maritime blockquote { border-left: 4px solid var(--color-maritime-orange); padding-left: 1.5rem; font-style: italic; color: var(--color-maritime-teal); margin: 2rem 0; }
+.prose-maritime table { width: 100%; border-collapse: collapse; margin: 2rem 0; background: rgba(0, 95, 115, 0.1); border-radius: 1rem; overflow: hidden; }
+.prose-maritime th { background: rgba(10, 147, 150, 0.2); color: var(--color-maritime-ocean); text-align: left; padding: 1rem; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em; }
+.prose-maritime td { padding: 1rem; border-top: 1px solid rgba(148, 210, 189, 0.1); color: rgba(233, 216, 166, 0.6); }
+
 body {
   background: var(--background);
   color: var(--foreground);

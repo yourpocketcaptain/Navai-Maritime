@@ -4,6 +4,7 @@ import { useAuth } from "@/components/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Anchor, BookOpen, GraduationCap, LogOut, Plus, Settings } from "lucide-react";
+import Dashboard from "@/components/admin/Dashboard";
 
 export default function AdminDashboard() {
     const { user, isAdmin, logout, loading } = useAuth();
@@ -100,23 +101,8 @@ export default function AdminDashboard() {
                     ))}
                 </div>
 
-                {/* Quick Stats / Recent Activity Placeholder */}
-                <div className="glass border border-white/5 rounded-[3rem] p-12 mt-12 bg-maritime-ocean/[0.02]">
-                    <h3 className="text-xs uppercase tracking-[0.3em] text-maritime-teal/40 mb-8 font-mono">Telemetry Data</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-                        {[
-                            { label: "Active Lessons", value: "24" },
-                            { label: "Study Categories", value: "12" },
-                            { label: "Vessel Support", value: "Global" },
-                            { label: "System Health", value: "Optimal" },
-                        ].map((stat, i) => (
-                            <div key={i} className="space-y-1">
-                                <div className="text-2xl font-black text-maritime-brass">{stat.value}</div>
-                                <div className="text-[10px] uppercase text-white/30 tracking-widest">{stat.label}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                {/* Dashboard Visualization Area */}
+                <Dashboard />
             </div>
         </main>
     );
