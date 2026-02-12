@@ -1,5 +1,6 @@
 import HomeClient from "./HomeClient";
 import type { Metadata } from "next";
+import { getAllPosts } from "@/lib/blog";
 
 export const metadata: Metadata = {
   title: "NavAI | Maritime AI Assistant & Professional Navigation Tools",
@@ -13,5 +14,6 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  return <HomeClient />;
+  const posts = getAllPosts().slice(0, 3);
+  return <HomeClient initialPosts={posts} />;
 }

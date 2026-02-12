@@ -16,6 +16,8 @@ import {
     PreviewNavigation
 } from "@/components/LandingPreviews";
 import {
+    BookOpen,
+    ArrowRight,
     Anchor,
     Calendar,
     Compass,
@@ -40,7 +42,9 @@ import {
     Lock
 } from "lucide-react";
 
-export default function HomeClient() {
+import { BlogPost } from "@/lib/blog";
+
+export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogPost[] }) {
 
 
     return (
@@ -363,6 +367,64 @@ export default function HomeClient() {
                                 </div>
                                 <h3 className="text-sm font-bold text-white group-hover:text-maritime-orange transition-colors">{mod.title}</h3>
                             </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* --- BLOG PREVIEW SECTION --- */}
+            <section className="py-32 px-6 relative border-t border-white/5">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+                        <div className="space-y-4">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-maritime-ocean/10 border border-maritime-ocean/20 text-maritime-teal text-[10px] uppercase tracking-widest font-bold">
+                                <BookOpen className="w-3 h-3" />
+                                <span>Bridge Intelligence</span>
+                            </div>
+                            <h2 className="text-4xl md:text-5xl font-light text-white leading-tight">
+                                Latest <span className="font-bold text-maritime-ocean italic">Insights</span>
+                            </h2>
+                        </div>
+                        <Link
+                            href="/blog"
+                            className="group flex items-center gap-2 text-sm font-bold text-white uppercase tracking-widest hover:text-maritime-ocean transition-colors"
+                        >
+                            <span>Explore and learn</span>
+                            <div className="w-8 h-[1px] bg-white group-hover:bg-maritime-ocean transition-colors" />
+                        </Link>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {initialPosts.map((post) => (
+                            <Link
+                                key={post.slug}
+                                href={`/blog/${post.slug}`}
+                                className="group flex flex-col bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden hover:border-maritime-orange/30 transition-all hover:-translate-y-2 h-full"
+                            >
+                                <div className="h-48 relative overflow-hidden bg-maritime-midnight">
+                                    <img
+                                        src={post.image}
+                                        alt={post.title}
+                                        className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
+                                    />
+                                    <div className="absolute top-4 left-4">
+                                        <span className="px-3 py-1 rounded-full bg-maritime-orange/20 border border-maritime-orange/30 text-maritime-orange text-[9px] font-bold uppercase tracking-widest backdrop-blur-md">
+                                            {post.category}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="p-8 flex-1 flex flex-col">
+                                    <div className="text-[10px] text-white/30 truncate mb-4 font-mono">
+                                        {new Date(post.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                    </div>
+                                    <h3 className="text-lg font-bold text-white mb-3 group-hover:text-maritime-orange transition-colors line-clamp-2 leading-snug">
+                                        {post.title}
+                                    </h3>
+                                    <p className="text-white/40 text-sm font-light leading-relaxed line-clamp-3">
+                                        {post.description}
+                                    </p>
+                                </div>
+                            </Link>
                         ))}
                     </div>
                 </div>
