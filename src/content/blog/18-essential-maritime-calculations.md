@@ -3,7 +3,7 @@ title: "The 18 Essential Calculations Every Modern Captain Must Master"
 date: "2026-03-01"
 description: "You aren't a modern officer if you can't solve these. The ultimate masterclass in maritime mathematics, from Haversine to catenaries."
 category: "Tutorial"
-image: "https://images.unsplash.com/photo-1454496406107-dc34337da8d6?auto=format&fit=crop&q=90&w=1200"
+image: "https://images.unsplash.com/photo-1517216015941-07927e05aac7?auto=format&fit=crop&q=90&w=1200"
 author: "Capt. Mariner"
 ---
 

@@ -50,7 +50,7 @@ export default function BlogPage() {
                                 <img
                                     src={post.image}
                                     alt={post.title}
-                                    className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
+                                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
                                 />
                                 <div className="absolute top-4 left-4">
                                     <span className="px-3 py-1 rounded-full bg-maritime-orange/20 border border-maritime-orange/30 text-maritime-orange text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">
