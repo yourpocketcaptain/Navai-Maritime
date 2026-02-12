@@ -80,7 +80,7 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
             {/* --- HERO SECTION --- */}
             <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 flex flex-col items-center text-center z-10 max-w-5xl mx-auto">
                 <h1 className="text-5xl sm:text-6xl md:text-8xl font-light tracking-tight text-maritime-brass leading-[1.1] mb-8">
-                    NavAI: Your Digital <span className="font-extrabold text-maritime-ocean italic">First Mate</span> for <span className="block sm:inline">Maritime Navigation</span>
+                    Your Digital <span className="font-extrabold text-maritime-ocean italic">First Mate</span>
                 </h1>
 
                 <p className="text-lg md:text-2xl text-maritime-teal/80 max-w-3xl mx-auto font-light leading-relaxed mb-12">
@@ -426,6 +426,16 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
                                 </div>
                             </Link>
                         ))}
+                    </div>
+
+                    <div className="mt-20 flex justify-center">
+                        <Link
+                            href="/blog"
+                            className="group relative inline-flex items-center gap-3 px-10 py-5 bg-white/5 border border-white/10 text-white rounded-2xl font-bold transition-all hover:scale-105 hover:bg-white/10 hover:border-maritime-orange/30 shadow-2xl"
+                        >
+                            <span className="text-sm uppercase tracking-[0.2em]">Explore All Insights</span>
+                            <ArrowRight className="w-5 h-5 text-maritime-orange group-hover:translate-x-1 transition-transform" />
+                        </Link>
                     </div>
                 </div>
             </section>
