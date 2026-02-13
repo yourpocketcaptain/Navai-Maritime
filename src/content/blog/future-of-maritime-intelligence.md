@@ -3,7 +3,7 @@ title: "Why we are building the future of maritime intelligence"
 date: "2026-02-12"
 description: "Discover the vision behind NavAI and how we are revolutionizing the bridge with modern technology."
 category: "Product"
-image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=90&w=1200"
+image: "/images/blog/future_intelligence.png"
 author: "NavAI Team"
 ---
 

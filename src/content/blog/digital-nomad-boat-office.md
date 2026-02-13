@@ -3,7 +3,7 @@ title: "Why your next 'Home Office' should have a keel and sails"
 date: "2026-03-05"
 description: "Your next HR meeting could be in the middle of the Atlantic. Discover the tech stack that makes professional sailing possible in 2026."
 category: "Lifestyle"
-image: "https://images.unsplash.com/photo-1502920513543-d0382b6df598?auto=format&fit=crop&q=90&w=1200"
+image: "/images/blog/digital_nomad.png"
 author: "NavAI Team"
 ---
 

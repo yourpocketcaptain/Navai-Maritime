@@ -3,7 +3,7 @@ title: "The Captain’s Mindset: 3 Mental Frameworks for High-Stakes Decisions"
 date: "2026-03-08"
 description: "The difference between a crisis and a routine day at sea is a framework. Discover the 3 mental models used by elite captains."
 category: "Technology"
-image: "https://images.unsplash.com/photo-1516733958028-9668bcd5408a?auto=format&fit=crop&q=90&w=1200"
+image: "/images/blog/captains_mindset.png"
 author: "Capt. Mariner"
 ---
 

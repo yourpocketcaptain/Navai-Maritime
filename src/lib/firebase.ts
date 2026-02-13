@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -20,4 +21,7 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
 
-export { app, auth, db, storage, googleProvider };
+// Initialize Analytics conditionally (it only works in the browser)
+const analytics = typeof window !== "undefined" ? isSupported().then(yes => yes ? getAnalytics(app) : null) : null;
+
+export { app, auth, db, storage, googleProvider, analytics };

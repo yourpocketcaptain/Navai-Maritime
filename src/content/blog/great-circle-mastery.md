@@ -3,7 +3,7 @@ title: "Mastering the Great Circle: Save Fuel and Time"
 date: "2026-02-10"
 description: "Learn how geodetic algorithms can optimize your route and reduce environmental impact."
 category: "Tutorial"
-image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=90&w=1200"
+image: "/images/blog/great_circle.png"
 author: "Capt. Mariner"
 ---
 

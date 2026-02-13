@@ -3,7 +3,7 @@ title: "AI vs. Human Error: Why your next First Mate will be Digital"
 date: "2026-02-15"
 description: "80% of maritime accidents are caused by human error. Discover how AI assistance is making the bridge safer and more efficient."
 category: "Technology"
-image: "https://images.unsplash.com/photo-1567899378494-47b22a2ca96a?auto=format&fit=crop&q=90&w=1200"
+image: "/images/blog/ai_vs_human_error.png"
 author: "NavAI Team"
 ---
 

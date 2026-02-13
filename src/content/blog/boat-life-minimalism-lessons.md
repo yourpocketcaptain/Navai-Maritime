@@ -3,7 +3,7 @@ title: "What living on a boat taught me about the clutter in my life"
 date: "2026-03-12"
 description: "Lessons in extreme minimalism from 20 square meters. How boat life forces you to prioritize what truly matters."
 category: "Lifestyle"
-image: "https://images.unsplash.com/photo-1524522173746-f628baad3644?auto=format&fit=crop&q=90&w=1200"
+image: "/images/blog/boat_life.png"
 author: "NavAI Team"
 ---
 

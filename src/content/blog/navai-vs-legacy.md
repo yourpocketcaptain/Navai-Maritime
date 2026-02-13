@@ -3,7 +3,7 @@ title: "NavAI vs. Legacy Software: Why Modern Bridges Need Modern Tools"
 date: "2026-02-05"
 description: "Is your bridge equipment stuck in the 90s? See why NavAI is the upgrade you've been waiting for."
 category: "Comparison"
-image: "https://images.unsplash.com/photo-1444413348-73b379302685?auto=format&fit=crop&q=90&w=1200"
+image: "/images/blog/navai_vs_legacy.png"
 author: "NavAI Team"
 ---
 

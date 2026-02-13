@@ -80,11 +80,27 @@ export const mockDevices = [
     { name: "Desktop", value: 35, color: "#3B82F6" },
 ];
 
+import { analytics } from "./firebase";
+import { logEvent } from "firebase/analytics";
+
+/**
+ * NavAI Analytics Utility
+ * Transitioning from Mock to GA4 tracking.
+ */
+
+// ... (existing interfaces and mocks remain for now as fallbacks)
+
 /**
  * Tracks a button click event for conversion analysis.
- * In production, this would send an event to GA4/Firebase.
  */
-export function trackConversion(buttonId: string) {
+export async function trackConversion(buttonId: string, params?: any) {
     console.log(`[Analytics] Tracked conversion on: ${buttonId}`);
-    // Implementation for GA4 / Firebase Analytics would go here
+
+    const instance = await analytics;
+    if (instance) {
+        logEvent(instance, 'conversion', {
+            button_id: buttonId,
+            ...params
+        });
+    }
 }

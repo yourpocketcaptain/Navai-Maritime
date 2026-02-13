@@ -3,7 +3,7 @@ title: "5 Signs from Nature that a Storm is 1 Hour Away"
 date: "2026-03-15"
 description: "How to read the clouds, the wind, and the sky like a master navigator to know if a storm is coming before your phone tells you."
 category: "Tutorial"
-image: "https://images.unsplash.com/photo-1504639725590-34d0984388bd?auto=format&fit=crop&q=90&w=1200"
+image: "/images/blog/nature_storm.png"
 author: "Capt. Mariner"
 ---
 

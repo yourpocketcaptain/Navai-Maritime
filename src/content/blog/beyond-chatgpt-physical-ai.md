@@ -3,7 +3,7 @@ title: "Beyond ChatGPT: How AI is taking over the physical world"
 date: "2026-03-10"
 description: "General AI chatbots are great for emails, but dangerous for navigation. See why specialized 'Physical AI' is the real future of the bridge."
 category: "Technology"
-image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=90&w=1200"
+image: "/images/blog/physical_ai.png"
 author: "NavAI Team"
 ---
 

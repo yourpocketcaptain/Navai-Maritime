@@ -3,7 +3,7 @@ title: "The Anchoring Math: Stop guessing your chain length"
 date: "2026-02-20"
 description: "Discover the exact formula to prevent your anchor from dragging. Most captains ignore the catenary effect—are you one of them?"
 category: "Tutorial"
-image: "https://images.unsplash.com/photo-1498330177096-689e389e1781?auto=format&fit=crop&q=90&w=1200"
+image: "/images/blog/anchoring_math.png"
 author: "Capt. Mariner"
 ---
 
