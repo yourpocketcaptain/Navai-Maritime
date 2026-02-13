@@ -33,19 +33,20 @@ export default function Dashboard() {
 
                 // 2. Fetch GA4 Data from our API
                 const res = await fetch('/api/analytics');
-                const data = await res.json();
+                if (res.ok) {
+                    const data = await res.json();
+                    if (!data.error) {
+                        // Update KPIs with real data
+                        const updatedKpis = [...KPI_CARDS_INITIAL];
+                        updatedKpis[3].value = totalUsers.toString();
 
-                if (!data.error) {
-                    // Update KPIs with real data
-                    const updatedKpis = [...KPI_CARDS_INITIAL];
-                    updatedKpis[3].value = totalUsers.toString();
-
-                    // Here we would map GA4 metrics to the other KPI cards
-                    // For now, we update Fleet Growth and keep others as placeholders if API fails
-                    setKpis(updatedKpis);
-                    setDailyData(data.stats || []);
+                        // Here we would map GA4 metrics to the other KPI cards
+                        // For now, we update Fleet Growth and keep others as placeholders if API fails
+                        setKpis(updatedKpis);
+                        setDailyData(data.stats || []);
+                    }
                 } else {
-                    // If error (e.g. missing credentials), we show total users at least
+                    // If API is missing or error
                     const updatedKpis = [...KPI_CARDS_INITIAL];
                     updatedKpis[3].value = totalUsers.toString();
                     setKpis(updatedKpis);
