@@ -126,18 +126,15 @@ export default function ClientAcademyPage() {
 
             // 2. Fetch all Lessons metadata
             const lessonQ = query(collection(db, "lessons"), orderBy("order", "asc"));
-            const lessonSnap = await getDocs(lessonQ);
-
-            const lessonsData = lessonSnap.docs.map(docSnap => {
-                const data = docSnap.data();
-                return {
-                    id: docSnap.id,
-                    title: data.title || "",
-                    category: data.category || "",
-                    categoryref: data.categoryref,
-                    order: data.order || 0
-                };
-            }) as Lesson[];
+            const lessonsSnapshot = await getDocs(lessonQ);
+            const lessonsData = lessonsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                title: doc.data().title || "",
+                category: doc.data().category || "",
+                categoryref: doc.data().categoryref,
+                order: doc.data().order || 0
+            })) as Lesson[];
+            console.log('ALL LESSONS:', lessonsData); // DEBUG: Find knot lesson IDs
             setLessons(lessonsData);
 
             // 3. Resolve "Virtual" categories
@@ -177,6 +174,24 @@ export default function ClientAcademyPage() {
             allCategories.sort((a, b) => (a.order || 0) - (b.order || 0));
 
             setCategories(allCategories);
+
+            // Check for deep link (ID or Title)
+            const urlParams = new URLSearchParams(window.location.search);
+            const lessonId = urlParams.get('lessonId');
+            const lessonTitleParam = urlParams.get('lessonTitle');
+
+            if (lessonId) {
+                const targetLesson = lessonsData.find(l => l.id === lessonId);
+                if (targetLesson) handleOpenLesson(targetLesson);
+            } else if (lessonTitleParam) {
+                // Fuzzy match or exact match title
+                const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const target = normalize(lessonTitleParam);
+                const targetLesson = lessonsData.find(l => normalize(l.title).includes(target) || target.includes(normalize(l.title)));
+
+                if (targetLesson) handleOpenLesson(targetLesson);
+            }
+
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -256,25 +271,28 @@ export default function ClientAcademyPage() {
 
                 {view === "categories" ? (
                     <>
-                        <div className="space-y-4">
-                            <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full border border-maritime-ocean/30 bg-maritime-ocean/5 text-maritime-teal text-[10px] uppercase tracking-widest font-bold">
-                                <GraduationCap className="w-3 h-3" />
-                                <span>{rank === 'captain' ? 'CAPTAIN PRIVILEGES' : 'CADET CURRICULUM'}</span>
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+                            <div className="space-y-4">
+                                <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full border border-maritime-ocean/30 bg-maritime-ocean/5 text-maritime-teal text-[10px] uppercase tracking-widest font-bold">
+                                    <GraduationCap className="w-3 h-3" />
+                                    <span>{rank === 'captain' ? 'CAPTAIN PRIVILEGES' : 'CADET CURRICULUM'}</span>
+                                </div>
+                                <h1 className="text-4xl md:text-5xl font-light text-maritime-brass">
+                                    Study <span className="font-extrabold text-maritime-ocean italic">Modules</span>
+                                </h1>
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-light text-maritime-brass">
-                                Study <span className="font-extrabold text-maritime-ocean italic">Modules</span>
-                            </h1>
-                        </div>
 
-                        <div className="relative group max-w-md">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-maritime-teal/40 group-focus-within:text-maritime-ocean transition-colors" />
-                            <input
-                                type="text"
-                                placeholder="Search modules..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-maritime-ocean transition-all backdrop-blur-md"
-                            />
+
+                            <div className="relative group max-w-md">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-maritime-teal/40 group-focus-within:text-maritime-ocean transition-colors" />
+                                <input
+                                    type="text"
+                                    placeholder="Search modules..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-maritime-ocean transition-all backdrop-blur-md"
+                                />
+                            </div>
                         </div>
 
                         {fetching ? (

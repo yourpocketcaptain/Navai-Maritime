@@ -47,6 +47,13 @@ export default function ClientDashboard() {
             color: "text-maritime-teal",
         },
         {
+            title: "Simulators",
+            description: "Interactive operational scenarios and training simulations.",
+            icon: Anchor,
+            href: "/client/simulators",
+            color: "text-maritime-ocean",
+        },
+        {
             title: "Global Marine Weather",
             description: "Real-time global weather data, meteograms and nautical charts.",
             icon: MapIcon,

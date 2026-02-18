@@ -31,7 +31,6 @@ export default function Dashboard() {
                 const usersSnap = await getDocs(collection(db, "users"));
                 const totalUsers = usersSnap.size;
 
-                // 2. Fetch GA4 Data from our API
                 const res = await fetch('/api/analytics');
                 if (res.ok) {
                     const data = await res.json();
@@ -44,8 +43,11 @@ export default function Dashboard() {
                         // For now, we update Fleet Growth and keep others as placeholders if API fails
                         setKpis(updatedKpis);
                         setDailyData(data.stats || []);
+                    } else {
+                        console.error("Dashboard Analytics API Error:", data.error);
                     }
                 } else {
+                    console.error("Dashboard Analytics Fetch Failed:", res.status, res.statusText);
                     // If API is missing or error
                     const updatedKpis = [...KPI_CARDS_INITIAL];
                     updatedKpis[3].value = totalUsers.toString();
