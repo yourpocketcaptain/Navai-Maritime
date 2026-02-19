@@ -6,7 +6,7 @@ import "leaflet/dist/leaflet.css";
 import { toJpeg } from 'html-to-image';
 import {
     Navigation, ZoomIn, ZoomOut, Trash2,
-    Activity, Keyboard, Send, Plus, Save, BookOpen, ChevronRight, X, Camera, Compass
+    Activity, Keyboard, Send, Plus, Save, BookOpen, ChevronRight, X, Camera, Compass, Maximize2, Minimize2
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import { db } from "@/lib/firebase";
@@ -47,6 +47,8 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
         lat: "", lon: ""
     });
     const [isPlotting, setIsPlotting] = useState(true);
+    const [speed, setSpeed] = useState<string>("10");
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     // Create Icons
     const createSeamarkIcon = (type: string, color: string) => {
@@ -477,9 +479,12 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
                 <div className="flex items-center justify-between border-l-2 border-maritime-ocean pl-6 mb-6">
                     <div>
                         <h3 className="text-2xl font-black text-maritime-brass uppercase tracking-tighter">Tactical Navigation Console</h3>
-                        <p className="text-[10px] text-white/30 uppercase tracking-[0.3em] mt-1 font-mono">100% Offline | Vectorial Plotting Engine | ECDIS Standard</p>
+                        <p className="text-[10px] text-white/30 uppercase tracking-[0.3em] mt-1 font-mono">Distance Calculator & GC Comparator | Vectorial Plotting Engine</p>
                     </div>
                     <div className="flex gap-2">
+                        <button onClick={() => setIsFullscreen(!isFullscreen)} className="px-3 py-2 rounded-xl border border-white/10 text-white/40 hover:text-white hover:border-white/30 transition-all" title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
+                            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                        </button>
                         <button onClick={() => setRouteType('both')} className={`px-4 py-2 rounded-xl text-[9px] uppercase font-black transition-all border ${routeType === 'both' ? 'bg-white/10 text-white border-white/30' : 'border-white/10 text-white/40 hover:border-white/20'}`}>Compare Both</button>
                         <button onClick={() => setRouteType('gc')} className={`px-4 py-2 rounded-xl text-[9px] uppercase font-black transition-all border ${routeType === 'gc' ? 'bg-maritime-brass text-black border-maritime-brass' : 'border-white/10 text-white/40 hover:border-white/20'}`}>Great Circle Only</button>
                         <button onClick={() => setRouteType('rhumb')} className={`px-4 py-2 rounded-xl text-[9px] uppercase font-black transition-all border ${routeType === 'rhumb' ? 'bg-maritime-ocean text-black border-maritime-ocean' : 'border-white/10 text-white/40 hover:border-white/20'}`}>Rhumb Only</button>
@@ -487,8 +492,8 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
                 </div>
             )}
 
-            <div className="flex-1 flex gap-6 min-h-0 relative">
-                <div className={`relative flex-1 rounded-[3rem] overflow-hidden border border-white/10 glass shadow-2xl ${variant === 'tactical' ? 'h-[600px]' : 'h-full'}`}>
+            <div className={`flex-1 flex gap-6 min-h-0 relative ${isFullscreen ? 'fixed inset-0 z-[5000] bg-maritime-midnight p-4' : ''}`}>
+                <div className={`relative flex-1 rounded-[3rem] overflow-hidden border border-white/10 glass shadow-2xl ${variant === 'tactical' ? (isFullscreen ? 'h-full' : 'h-[600px]') : 'h-full'}`}>
                     <div ref={mapContainerRef} className="w-full h-full bg-[#001a33]" />
 
                     {/* Loading State */}
@@ -595,12 +600,22 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
                                                                 onChange={(e) => setRouteName(e.target.value)}
                                                                 className="col-span-2 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white focus:border-maritime-ocean/50 outline-none"
                                                             />
+                                                            <div className="col-span-1 relative">
+                                                                <input
+                                                                    type="number"
+                                                                    min="1"
+                                                                    value={speed}
+                                                                    onChange={(e) => setSpeed(e.target.value)}
+                                                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white focus:border-maritime-ocean/50 outline-none pr-6"
+                                                                />
+                                                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] text-white/30 font-black">KTS</span>
+                                                            </div>
                                                             <button
                                                                 onClick={saveRoute}
                                                                 disabled={isSaving || !routeName}
-                                                                className="col-span-1 py-2 bg-maritime-ocean text-black rounded-lg text-[9px] font-black uppercase flex items-center justify-center gap-1 hover:bg-white transition-colors disabled:opacity-50"
+                                                                className="col-span-1 py-1.5 bg-maritime-ocean text-black rounded-lg text-[9px] font-black uppercase flex items-center justify-center gap-1 hover:bg-white transition-colors disabled:opacity-50"
                                                             >
-                                                                <Save className="w-3 h-3" /> Save Route
+                                                                <Save className="w-3 h-3" /> Save
                                                             </button>
                                                         </div>
                                                     </div>
@@ -658,6 +673,18 @@ export default function OfflineNauticalMap({ variant = 'tactical', onPointSelect
                                                         <span className="text-[8px] uppercase text-maritime-brass block mb-1">Total Voyage Distance</span>
                                                         <div className="text-2xl font-black text-white">
                                                             {distances.reduce((acc, d) => acc + (routeType === 'gc' ? d.gc : d.rhumb), 0).toLocaleString()} <span className="text-xs">NM</span>
+                                                        </div>
+                                                        <div className="mt-2 text-[10px] text-white/60 font-mono border-t border-maritime-brass/10 pt-2">
+                                                            Est. Time: <span className="text-white font-bold">
+                                                                {(() => {
+                                                                    const dist = distances.reduce((acc, d) => acc + (routeType === 'gc' ? d.gc : d.rhumb), 0);
+                                                                    const kts = parseFloat(speed) || 1;
+                                                                    const hours = dist / kts;
+                                                                    const d = Math.floor(hours / 24);
+                                                                    const h = (hours % 24).toFixed(1);
+                                                                    return `${d}d ${h}h`;
+                                                                })()}
+                                                            </span>
                                                         </div>
                                                     </div>
 

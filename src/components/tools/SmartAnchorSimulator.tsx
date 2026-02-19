@@ -121,7 +121,7 @@ export default function SmartAnchorSimulator() {
             pullAngle = ((Math.asin(1 / actualScope) * 180) / Math.PI) * windFactor;
         }
 
-        // 3. Risk Assessment
+        // 3. Risk Assessment & Explanations
         let riskLevel: 'safe' | 'caution' | 'danger' = 'safe';
         const bottomRisk = BOTTOM_TYPES.find(b => b.id === bottom)?.risk || 1;
 
@@ -133,12 +133,35 @@ export default function SmartAnchorSimulator() {
         const anchorHolding = ANCHOR_TYPES.find(a => a.id === anchor)?.holding || 1.0;
         if (anchorHolding < 0.5 && wind > 15) riskLevel = 'danger';
 
+        // --- Explanations ---
+        let windMsg = "Light winds (<15kts) allow for standard scope. The catenary curve is effective at absorbing shock loads.";
+        if (wind > 30) {
+            windMsg = "Strong winds (>30kts) significantly increase the horizontal load. The chain straightens, losing its shock-absorbing catenary. Scope should be increased (+2) to compensate.";
+        } else if (wind > 15) {
+            windMsg = "Moderate winds (>15kts) increase tension. Scope is increased (+1) to ensure the angle of pull at the anchor remains low.";
+        }
+
+        let seabedMsg = "Good holding ground (Sand/Mud) allows the anchor to bury deep, providing maximum holding power with standard scope.";
+        if (bottom === 'sand' || bottom === 'mud') {
+            // Keep default
+        } else if (bottom === 'weed') {
+            seabedMsg = "Weed is poor holding ground. Anchors struggle to set and may slide on top. Increased scope (+1) helps the anchor penetrate through vegetation.";
+        } else if (bottom === 'rock') {
+            seabedMsg = "Rock provides very poor and unpredictable holding. The anchor relies on hooking creates rather than burying. Maximum scope (+2) is required to keep the pull horizontal and avoid dislodging.";
+        }
+
+        const depthMsg = depth > 20
+            ? "In deeper water (>20m), the weight of the chain provides excellent catenary effect, absorbing wind gusts before they reach the anchor."
+            : "In shallow water, the chain length is short, leaving little room for shock absorption. A longer scope is critical to prevent the anchor from being jerked out.";
+
+
         return {
             scope: requiredScope,
             chainLength: requiredChainLength,
             pullAngle,
             riskLevel,
-            maxWind: anchorHolding * 40 * (line === 'chain' ? 1.2 : 0.8) // Simulated max holding wind
+            maxWind: anchorHolding * 40 * (line === 'chain' ? 1.2 : 0.8), // Simulated max holding wind
+            explanations: { windMsg, seabedMsg, depthMsg }
         };
     }, [state]);
 
@@ -446,6 +469,25 @@ export default function SmartAnchorSimulator() {
                             </div>
                         </div>
                     )}
+
+                    {/* Logic Breakdown */}
+                    <div className="space-y-3 pt-4 border-t border-white/5">
+                        <label className="block text-xs uppercase font-bold text-white/40 tracking-widest">Calculation Logic</label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                                <h5 className="text-[10px] text-maritime-ocean font-bold uppercase mb-1">Seabed Factor</h5>
+                                <p className="text-[10px] text-white/50 leading-relaxed">{simulation.explanations.seabedMsg}</p>
+                            </div>
+                            <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                                <h5 className="text-[10px] text-maritime-ocean font-bold uppercase mb-1">Wind Load</h5>
+                                <p className="text-[10px] text-white/50 leading-relaxed">{simulation.explanations.windMsg}</p>
+                            </div>
+                            <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                                <h5 className="text-[10px] text-maritime-ocean font-bold uppercase mb-1">Depth Effect</h5>
+                                <p className="text-[10px] text-white/50 leading-relaxed">{simulation.explanations.depthMsg}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>

@@ -8,8 +8,9 @@ import {
     Navigation, Crosshair, MapPin,
     ChevronDown, ChevronUp, Lock, ShieldCheck,
     Clock, Loader2, GraduationCap,
-    TrendingUp, Calculator, AlertCircle,
-    Calendar, Maximize, RefreshCw, Layers, Plus, Trash2, FileText, Download, Save, Info, Activity
+    TrendingUp, Calculator, AlertCircle, AlertTriangle,
+    Calendar, Maximize, RefreshCw, Layers, Plus, Trash2, FileText, Download, Save, Info, Activity,
+    LayoutList, FlaskConical, ClipboardList, Book
 } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, query, getDocs, doc, setDoc, deleteDoc, orderBy, getDoc } from "firebase/firestore";
@@ -40,6 +41,7 @@ export default function FleetToolsPage() {
     const { isClient, rank, loading: authLoading } = useAuth();
     const router = useRouter();
     const [expanded, setExpanded] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<'essentials' | 'advanced'>('essentials');
 
     useEffect(() => {
         if (!authLoading && !isClient) {
@@ -81,55 +83,107 @@ export default function FleetToolsPage() {
                             Professional Suite for Ships' Officers. Precision maritime computing modules for High-Sea Navigation, Ship Stability, Career Records, and Cargo Operations.
                         </p>
                     </div>
+
+                    {/* Tab Switcher */}
+                    <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/10 shadow-2xl">
+                        <button
+                            onClick={() => { setActiveTab('essentials'); setExpanded(null); }}
+                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'essentials' ? 'bg-maritime-ocean text-black shadow-lg shadow-maritime-ocean/20' : 'text-white/40 hover:text-white'}`}
+                        >
+                            <LayoutList className="w-4 h-4" />
+                            Bridge Essentials
+                        </button>
+                        <button
+                            onClick={() => { setActiveTab('advanced'); setExpanded(null); }}
+                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'advanced' ? 'bg-maritime-brass text-black shadow-lg shadow-maritime-brass/20' : 'text-white/40 hover:text-white'}`}
+                        >
+                            <FlaskConical className="w-4 h-4" />
+                            Advanced Ops <span className="text-[8px] opacity-60 ml-1 bg-black/10 px-1 rounded">BETA</span>
+                        </button>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-16">
-                    {/* --- NAVIGATION CLUSTER --- */}
-                    <div className="space-y-8">
-                        <ClusterLabel icon={<Navigation />} title="Navigation & Routing" />
-                        <ToolGroup>
-                            <ToolEntry id="eta_calc" title="ETA & Passage Planner" icon={<Clock />} expanded={expanded} onToggle={handleToggle}><ETACalculator /></ToolEntry>
-                            <ToolEntry id="gc_nav" title="Great Circle Sailing" icon={<TrendingUp />} expanded={expanded} onToggle={handleToggle}><GreatCircleTool /></ToolEntry>
-                            <ToolEntry id="merc_course" title="Mercator Sailing: Course/Dist" icon={<Layers />} expanded={expanded} onToggle={handleToggle}><MercatorCourseTool /></ToolEntry>
-                            <ToolEntry id="merc_arrival" title="Mercator Sailing: Arrival Pos" icon={<MapPin />} expanded={expanded} onToggle={handleToggle}><MercatorArrivalTool /></ToolEntry>
-                            <ToolEntry id="plane_sailing" title="Plane Sailing Calculator" icon={<Compass />} expanded={expanded} onToggle={handleToggle}><PlaneSailingTool /></ToolEntry>
-                            <ToolEntry id="meridional" title="Meridional Parts (MP)" icon={<Calculator />} expanded={expanded} onToggle={handleToggle}><MeridionalPartsTool /></ToolEntry>
-                        </ToolGroup>
-                    </div>
+                {activeTab === 'essentials' ? (
+                    <div className="space-y-8 max-w-3xl animate-in fade-in slide-in-from-left-4 duration-500">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-maritime-ocean/10 rounded-2xl text-maritime-ocean">
+                                <LayoutList className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Bridge Essentials</h3>
+                                <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-mono">Day-to-Day Operational Utilities</p>
+                            </div>
+                        </div>
 
-                    {/* --- SHIP OPERATIONS CLUSTER --- */}
-                    <div className="space-y-8">
-                        <ClusterLabel icon={<Ship />} title="Ship Operations" />
                         <ToolGroup>
-                            <ToolEntry id="draft" title="Draft Survey Professional" icon={<Maximize />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><DraftSurveyTool /></ToolEntry>
-                            <ToolEntry id="stability" title="Ship Stability & Loading" icon={<ShieldCheck />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><ShipStabilityTool /></ToolEntry>
-                            <ToolEntry id="squat_calc" title="Dynamic Squat Estimator" icon={<TrendingUp />} expanded={expanded} onToggle={handleToggle}><SquatTool /></ToolEntry>
+                            <ToolEntry id="unit_conv" title="Professional Unit Converter" icon={<RefreshCw />} expanded={expanded} onToggle={handleToggle}><UnitConverterTool /></ToolEntry>
+                            <ToolEntry id="eta_calc" title="ETA & Passage Planner" icon={<Clock />} expanded={expanded} onToggle={handleToggle}><ETACalculator /></ToolEntry>
                             <ToolEntry id="anchor" title="Anchor Chain Calculator" icon={<Anchor />} expanded={expanded} onToggle={handleToggle}><AnchorChainCalculator /></ToolEntry>
                             <ToolEntry id="radius" title="Swinging Radius" icon={<RefreshCw />} expanded={expanded} onToggle={handleToggle}><SwingingRadiusTool /></ToolEntry>
-                            <ToolEntry id="gyro" title="Gyro & Compass Error" icon={<Crosshair />} expanded={expanded} onToggle={handleToggle}><CompassErrorTool /></ToolEntry>
                             <ToolEntry id="nav_pro" title="Navigation Pro: Currents & Wind" icon={<Navigation />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><NavigationProTool /></ToolEntry>
+                            <ToolEntry id="checklist" title="Maritime Checklists" icon={<ClipboardList />} expanded={expanded} onToggle={handleToggle}><ChecklistTool /></ToolEntry>
+                            <ToolEntry id="logbook" title="Digital Logbook Interface" icon={<Book />} expanded={expanded} onToggle={handleToggle}><LogbookTool /></ToolEntry>
                         </ToolGroup>
                     </div>
+                ) : (
+                    <div className="space-y-12 animate-in fade-in slide-in-from-right-4 duration-500">
+                        {/* Beta Warning */}
+                        <div className="max-w-4xl bg-maritime-orange/10 border border-maritime-orange/30 p-4 rounded-2xl flex items-center gap-4">
+                            <div className="p-2 bg-maritime-orange/20 rounded-xl text-maritime-orange">
+                                <AlertTriangle className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h4 className="text-xs font-black text-maritime-orange uppercase tracking-wider">Advanced Tools - Beta Status</h4>
+                                <p className="text-[11px] text-maritime-orange/70 font-medium">
+                                    These tools are currently under development and calibration. They may contain calculation errors or unstable performance. Please double-check all results with official nautical manuals.
+                                </p>
+                            </div>
+                        </div>
 
-                    {/* --- CAREER & RECORDS CLUSTER --- */}
-                    <div className="space-y-8">
-                        <ClusterLabel icon={<GraduationCap />} title="Career & Management" />
-                        <ToolGroup>
-                            <ToolEntry id="sea" title="Sea Service Record" icon={<Calendar />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><SeaServiceTool /></ToolEntry>
-                            <ToolEntry id="contract" title="Contract Countdown" icon={<Clock />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><ContractTool /></ToolEntry>
-                        </ToolGroup>
-                    </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-16">
+                            {/* --- NAVIGATION CLUSTER --- */}
+                            <div className="space-y-8">
+                                <ClusterLabel icon={<Navigation />} title="Advanced Navigation" />
+                                <ToolGroup>
+                                    <ToolEntry id="gc_nav" title="Great Circle Sailing" icon={<TrendingUp />} expanded={expanded} onToggle={handleToggle}><GreatCircleTool /></ToolEntry>
+                                    <ToolEntry id="merc_course" title="Mercator Sailing: Course/Dist" icon={<Layers />} expanded={expanded} onToggle={handleToggle}><MercatorCourseTool /></ToolEntry>
+                                    <ToolEntry id="merc_arrival" title="Mercator Sailing: Arrival Pos" icon={<MapPin />} expanded={expanded} onToggle={handleToggle}><MercatorArrivalTool /></ToolEntry>
+                                    <ToolEntry id="plane_sailing" title="Plane Sailing Calculator" icon={<Compass />} expanded={expanded} onToggle={handleToggle}><PlaneSailingTool /></ToolEntry>
+                                    <ToolEntry id="meridional" title="Meridional Parts (MP)" icon={<Calculator />} expanded={expanded} onToggle={handleToggle}><MeridionalPartsTool /></ToolEntry>
+                                </ToolGroup>
+                            </div>
 
-                    {/* --- CONVERSION SUITE --- */}
-                    <div className="space-y-8">
-                        <ClusterLabel icon={<RefreshCw />} title="Conversion Suite" />
-                        <ToolGroup>
-                            <ToolEntry id="coord" title="Lat/Lon Universal Converter" icon={<MapPin />} expanded={expanded} onToggle={handleToggle}><LatLonConverter /></ToolEntry>
-                            <ToolEntry id="unit_conv" title="Professional Unit Converter" icon={<RefreshCw />} expanded={expanded} onToggle={handleToggle}><UnitConverterTool /></ToolEntry>
-                            <ToolEntry id="arc" title="Arc & Time (15º/hr)" icon={<RefreshCw />} expanded={expanded} onToggle={handleToggle}><ArcTimeTool /></ToolEntry>
-                        </ToolGroup>
+                            {/* --- SHIP OPERATIONS CLUSTER --- */}
+                            <div className="space-y-8">
+                                <ClusterLabel icon={<Ship />} title="Cargo & Stability" />
+                                <ToolGroup>
+                                    <ToolEntry id="draft" title="Draft Survey Professional" icon={<Maximize />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><DraftSurveyTool /></ToolEntry>
+                                    <ToolEntry id="stability" title="Ship Stability & Loading" icon={<ShieldCheck />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><ShipStabilityTool /></ToolEntry>
+                                    <ToolEntry id="squat_calc" title="Dynamic Squat Estimator" icon={<TrendingUp />} expanded={expanded} onToggle={handleToggle}><SquatTool /></ToolEntry>
+                                    <ToolEntry id="gyro" title="Gyro & Compass Error" icon={<Crosshair />} expanded={expanded} onToggle={handleToggle}><CompassErrorTool /></ToolEntry>
+                                </ToolGroup>
+                            </div>
+
+                            {/* --- CAREER & RECORDS CLUSTER --- */}
+                            <div className="space-y-8">
+                                <ClusterLabel icon={<GraduationCap />} title="Officer's Records" />
+                                <ToolGroup>
+                                    <ToolEntry id="sea" title="Sea Service Record" icon={<Calendar />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><SeaServiceTool /></ToolEntry>
+                                    <ToolEntry id="contract" title="Contract Countdown" icon={<Clock />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><ContractTool /></ToolEntry>
+                                </ToolGroup>
+                            </div>
+
+                            {/* --- CONVERSION SUITE --- */}
+                            <div className="space-y-8">
+                                <ClusterLabel icon={<RefreshCw />} title="Auxiliary Conversions" />
+                                <ToolGroup>
+                                    <ToolEntry id="coord" title="Lat/Lon Universal Converter" icon={<MapPin />} expanded={expanded} onToggle={handleToggle}><LatLonConverter /></ToolEntry>
+                                    <ToolEntry id="arc" title="Arc & Time (15º/hr)" icon={<RefreshCw />} expanded={expanded} onToggle={handleToggle}><ArcTimeTool /></ToolEntry>
+                                </ToolGroup>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </main>
     );
@@ -1796,6 +1850,67 @@ function UnitConverterTool() {
         </div>
     );
 }
+
+function ChecklistTool() {
+    const defaultChecklists = [
+        { id: 'arrival', title: 'Arrival at Port', items: ['Engine Room manned', 'Anchors cleared', 'Pilot ladder ready', 'Flags hoisted'] },
+        { id: 'departure', title: 'Departure from Berth', items: ['Main Engine tested', 'Steering gear checked', 'Mooring lines ready', 'Charts & passage plan active'] },
+        { id: 'fire', title: 'Fire Drill / Emergency', items: ['General alarm sounded', 'Muster stations manned', 'Ventilation stopped', 'Fire pumps started'] },
+    ];
+
+    return (
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {defaultChecklists.map(list => (
+                    <div key={list.id} className="p-6 bg-white/[0.03] border border-white/5 rounded-3xl hover:bg-white/5 transition-all">
+                        <div className="flex items-center gap-3 mb-4">
+                            <ClipboardList className="w-5 h-5 text-maritime-ocean" />
+                            <h4 className="text-sm font-bold text-white uppercase">{list.title}</h4>
+                        </div>
+                        <ul className="space-y-2">
+                            {list.items.map((item, i) => (
+                                <li key={i} className="flex items-center gap-3 text-xs text-white/60">
+                                    <div className="w-4 h-4 rounded border border-white/10 flex-shrink-0" />
+                                    {item}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
+            </div>
+            <HowToUse
+                title="Maritime Checklists Beta"
+                steps={["Select a checklist relevant to your current operation.", "Follow vessel-specific procedures manual alongside this list.", "Checklists ensure Bridge Resource Management (BRM) compliance."]}
+                notes="Digital checklists are for reference only. Use printed SMS manuals for official record keeping."
+            />
+        </div>
+    );
+}
+
+function LogbookTool() {
+    return (
+        <div className="space-y-6">
+            <div className="p-12 bg-white/[0.03] border border-white/5 rounded-[2.5rem] text-center space-y-4">
+                <div className="p-4 bg-maritime-ocean/10 rounded-full w-fit mx-auto">
+                    <Book className="w-8 h-8 text-maritime-ocean animate-pulse" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Digital Logbook Interface</h3>
+                <p className="text-sm text-white/40 max-w-md mx-auto">
+                    The Smart Logbook module is currently being calibrated for IMO GMDSS compliance. Real-time event logging and cloud synchronization will be available in the next version.
+                </p>
+                <div className="flex justify-center gap-2">
+                    <span className="px-3 py-1 bg-maritime-brass/20 text-maritime-brass text-[10px] font-black uppercase rounded-full">Coming Soon</span>
+                    <span className="px-3 py-1 bg-white/5 text-white/40 text-[10px] font-black uppercase rounded-full">Beta Testing</span>
+                </div>
+            </div>
+            <HowToUse
+                title="About Digital Logbooks"
+                steps={["This tool will allow automated logging of position, weather, and maneuvers.", "Digital records are increasingly accepted by flag states under ISO standards.", "Ensure your vessel allows electronic record keeping before use."]}
+            />
+        </div>
+    );
+}
+
 
 function InputBox({ label, val, setVal, type = "number" }: any) {
     return (

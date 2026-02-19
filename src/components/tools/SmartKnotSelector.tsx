@@ -25,6 +25,7 @@ interface KnotResult {
     warning?: string;
     proTip?: string;
     videoUrl?: string; // Placeholder for future link
+    lessonId?: string; // ID of the Academy lesson to link directly
     lessonTitle?: string; // Title of the Academy lesson to link to (for fuzzy matching)
 }
 
@@ -359,9 +360,7 @@ export default function SmartKnotSelector() {
                                 <h2 className="text-4xl md:text-5xl font-black text-white">{result.name}</h2>
                             </div>
                             <div className="flex gap-2">
-                                <button className="p-3 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors">
-                                    <PlayCircle className="w-6 h-6" />
-                                </button>
+
                                 <button className="p-3 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors">
                                     <Info className="w-6 h-6" />
                                 </button>
@@ -369,9 +368,7 @@ export default function SmartKnotSelector() {
                         </div>
 
                         {/* Image Placeholder */}
-                        <div className="aspect-video w-full rounded-3xl bg-black/40 border border-white/5 mb-8 flex items-center justify-center relative overflow-hidden group">
-                            {/* Placeholder for real image */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
+                        <div className="w-full rounded-3xl bg-black/40 border border-white/5 mb-8 flex items-center justify-center relative overflow-hidden group p-6">
 
                             <img
                                 key={result.id} // Force re-render on change
@@ -382,7 +379,7 @@ export default function SmartKnotSelector() {
                                     const fallback = document.getElementById(`fallback-${result.id}`);
                                     if (fallback) fallback.style.display = 'flex';
                                 }}
-                                className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-700"
+                                className="max-h-[300px] w-auto object-contain rounded-xl transition-opacity duration-700"
                                 alt={result.name}
                             />
 
@@ -395,9 +392,7 @@ export default function SmartKnotSelector() {
                                 <p className="text-white/20 text-xs mt-2 max-w-xs">High Definition render for {result.name} is being processed.</p>
                             </div>
 
-                            <span className="relative z-20 text-white/20 font-mono text-xs uppercase tracking-widest border border-white/20 px-4 py-2 rounded-lg backdrop-blur-md">
-                                High Definition Visualization
-                            </span>
+
                         </div>
 
                         {/* Content */}
