@@ -4,9 +4,10 @@
 import { useAuth } from "@/components/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Anchor, ArrowLeft, Loader2, Anchor as AnchorIcon, RefreshCw } from "lucide-react";
+import { Anchor, ArrowLeft, Loader2, Anchor as AnchorIcon, RefreshCw, Radio } from "lucide-react";
 import SmartAnchorSimulator from "@/components/tools/SmartAnchorSimulator";
 import SmartKnotSelector from "@/components/tools/SmartKnotSelector";
+import RadioSimulator from "@/components/tools/RadioSimulator";
 
 export default function SimulatorsPage() {
     const { isClient, loading } = useAuth();
@@ -47,6 +48,13 @@ export default function SimulatorsPage() {
             description: 'Determine the perfect knot for any object, hardware, and condition.',
             icon: RefreshCw,
             color: 'text-maritime-teal'
+        },
+        {
+            id: 'radio-sim',
+            title: 'Radio Simulator',
+            description: 'Master maritime communication protocols and distress calls.',
+            icon: Radio,
+            color: 'text-maritime-brass'
         }
     ];
 
@@ -106,6 +114,16 @@ export default function SimulatorsPage() {
                                     </h1>
                                 </div>
                                 <SmartKnotSelector />
+                            </div>
+                        )}
+                        {activeSimulator === 'radio-sim' && (
+                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <div className="mb-8 border-b border-white/10 pb-8">
+                                    <h1 className="text-3xl font-light text-maritime-brass">
+                                        Radio <span className="font-extrabold text-white">Simulator</span>
+                                    </h1>
+                                </div>
+                                <RadioSimulator />
                             </div>
                         )}
                     </>
