@@ -309,8 +309,8 @@ const TRANSLATIONS: Record<Language, any> = {
         onboardingTitle: "Vessel Setup",
         onboardingSub: "Configure your station details",
         vesselNameLabel: "Vessel Name",
-        mmsiLabel: "MMSI",
-        callSignLabel: "Call Sign",
+        mmsiLabel: "MMSI (Optional)",
+        callSignLabel: "Call Sign (Optional)",
         mmsiPlaceholder: "9 digits",
         callSignPlaceholder: "Call Sign",
         protocolTitle: "Priority Level",
@@ -376,6 +376,9 @@ const TRANSLATIONS: Record<Language, any> = {
         marinaPort: "Marina / Port Control",
         otherVessel: "Other Vessel",
         switchChannel: "Switch to Working Channel",
+        phase: "Phase",
+        of: "of",
+        dscWarn: "Digital Selective Calling (DSC) sends a digital burst of your MMSI and coordinates. Always trigger DSC before voice if your radio is equipped.",
     },
     es: {
         simulatorTitle: "Simulador",
@@ -384,8 +387,8 @@ const TRANSLATIONS: Record<Language, any> = {
         onboardingTitle: "Configuración",
         onboardingSub: "Identificación de la estación",
         vesselNameLabel: "Nombre del Buque",
-        mmsiLabel: "MMSI",
-        callSignLabel: "Distintivo",
+        mmsiLabel: "MMSI (Opcional)",
+        callSignLabel: "Distintivo (Opcional)",
         mmsiPlaceholder: "9 dígitos",
         callSignPlaceholder: "Distintivo",
         protocolTitle: "Prioridad",
@@ -451,6 +454,9 @@ const TRANSLATIONS: Record<Language, any> = {
         marinaPort: "Marina / Control de Puerto",
         otherVessel: "Otro Barco",
         switchChannel: "Cambiar al Canal de Trabajo",
+        phase: "Fase",
+        of: "de",
+        dscWarn: "La Llamada Selectiva Digital (LSD/DSC) envía un aviso digital con tu MMSI y posición. Actívalo siempre antes de la fonía.",
     }
 };
 
@@ -641,15 +647,15 @@ export default function RadioSimulator() {
                     onClick={() => setState(s => ({ ...s, language: 'en', step: 1 }))}
                     className="flex-1 p-8 rounded-[2.5rem] bg-white/5 border border-white/10 hover:bg-white/10 hover:scale-105 transition-all group"
                 >
-                    <span className="block text-2xl font-black mb-2 transition-transform group-hover:scale-110">ENGLISH</span>
-                    <span className="text-[10px] text-white/40 uppercase tracking-widest">Global Maritime Standard</span>
+                    <span className="block text-2xl font-black mb-2 transition-transform group-hover:scale-110 pointer-events-none">ENGLISH</span>
+                    <span className="text-[10px] text-white/40 uppercase tracking-widest pointer-events-none">Global Maritime Standard</span>
                 </button>
                 <button
                     onClick={() => setState(s => ({ ...s, language: 'es', step: 1 }))}
                     className="flex-1 p-8 rounded-[2.5rem] bg-white/5 border border-white/10 hover:bg-white/10 hover:scale-105 transition-all group"
                 >
-                    <span className="block text-2xl font-black mb-2 transition-transform group-hover:scale-110">ESPAÑOL</span>
-                    <span className="text-[10px] text-white/40 uppercase tracking-widest">Comunicaciones en Español</span>
+                    <span className="block text-2xl font-black mb-2 transition-transform group-hover:scale-110 pointer-events-none">ESPAÑOL</span>
+                    <span className="text-[10px] text-white/40 uppercase tracking-widest pointer-events-none">Comunicaciones en Español</span>
                 </button>
             </div>
 
@@ -1265,10 +1271,10 @@ export default function RadioSimulator() {
                 <div className={`mt-12 pt-10 border-t border-white/5 flex justify-between items-center ${state.step === 0 ? 'hidden' : ''}`}>
                     <button
                         onClick={prevStep}
-                        className="flex items-center gap-3 text-[10px] uppercase font-bold tracking-widest text-white/40 hover:text-white transition-all group/back"
+                        className="flex items-center gap-3 text-[10px] uppercase font-bold tracking-widest text-white/40 hover:text-white transition-all group/back relative z-10"
                     >
-                        <ChevronLeft className="w-5 h-5 group-hover/back:-translate-x-1 transition-transform" />
-                        {t.back}
+                        <ChevronLeft className="w-5 h-5 group-hover/back:-translate-x-1 transition-transform pointer-events-none" />
+                        <span className="pointer-events-none">{t.back}</span>
                     </button>
 
                     <div className="hidden md:flex items-center gap-4 text-white/20">
@@ -1278,18 +1284,18 @@ export default function RadioSimulator() {
                     {state.step < 3 ? (
                         <button
                             onClick={nextStep}
-                            className="bg-maritime-ocean hover:bg-maritime-teal text-maritime-midnight px-12 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 transition-all shadow-xl hover:shadow-maritime-ocean/20 group/next"
+                            className="bg-maritime-ocean hover:bg-maritime-teal text-maritime-midnight px-12 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 transition-all shadow-xl hover:shadow-maritime-ocean/20 group/next relative z-10"
                         >
-                            {t.continue}
-                            <ChevronRight className="w-5 h-5 group-hover/next:translate-x-1 transition-transform" />
+                            <span className="pointer-events-none">{t.continue}</span>
+                            <ChevronRight className="w-5 h-5 group-hover/next:translate-x-1 transition-transform pointer-events-none" />
                         </button>
                     ) : (
                         <button
                             onClick={() => setState(s => ({ ...s, step: 0 }))}
-                            className="bg-maritime-brass text-maritime-midnight px-12 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 transition-all hover:scale-105"
+                            className="bg-maritime-brass text-maritime-midnight px-12 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 transition-all hover:scale-105 relative z-10"
                         >
-                            {t.newSim}
-                            <Radio className="w-5 h-5" />
+                            <span className="pointer-events-none">{t.newSim}</span>
+                            <Radio className="w-5 h-5 pointer-events-none" />
                         </button>
                     )}
                 </div>

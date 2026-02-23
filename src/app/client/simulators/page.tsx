@@ -4,10 +4,15 @@
 import { useAuth } from "@/components/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Anchor, ArrowLeft, Loader2, Anchor as AnchorIcon, RefreshCw, Radio } from "lucide-react";
 import SmartAnchorSimulator from "@/components/tools/SmartAnchorSimulator";
 import SmartKnotSelector from "@/components/tools/SmartKnotSelector";
 import RadioSimulator from "@/components/tools/RadioSimulator";
+import VisualMobSimulator from "@/components/tools/VisualMobSimulator";
+import IalaAssistant from "@/components/tools/IalaAssistant";
+import {
+    Anchor, ArrowLeft, Loader2, Anchor as AnchorIcon,
+    RefreshCw, Radio, ShieldAlert, Eye
+} from "lucide-react";
 
 export default function SimulatorsPage() {
     const { isClient, loading } = useAuth();
@@ -55,6 +60,20 @@ export default function SimulatorsPage() {
             description: 'Master maritime communication protocols and distress calls.',
             icon: Radio,
             color: 'text-maritime-brass'
+        },
+        {
+            id: 'mob-hud',
+            title: 'MOB (Man Overboard) Simulator',
+            description: 'Step-by-step emergency guide for Man Overboard maneuvers.',
+            icon: ShieldAlert,
+            color: 'text-red-500'
+        },
+        {
+            id: 'iala-assistant',
+            title: 'IALA Buoy Finder',
+            description: 'Identify maritime marks via visual attributes or light rhythm.',
+            icon: Eye,
+            color: 'text-maritime-ocean'
         }
     ];
 
@@ -124,6 +143,26 @@ export default function SimulatorsPage() {
                                     </h1>
                                 </div>
                                 <RadioSimulator />
+                            </div>
+                        )}
+                        {activeSimulator === 'mob-hud' && (
+                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <div className="mb-8 border-b border-white/10 pb-8">
+                                    <h1 className="text-3xl font-light text-red-500">
+                                        NavAI <span className="font-extrabold text-white">MOB HUD</span>
+                                    </h1>
+                                </div>
+                                <VisualMobSimulator />
+                            </div>
+                        )}
+                        {activeSimulator === 'iala-assistant' && (
+                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <div className="mb-8 border-b border-white/10 pb-8">
+                                    <h1 className="text-3xl font-light text-maritime-ocean">
+                                        IALA <span className="font-extrabold text-white">Identification Assistant</span>
+                                    </h1>
+                                </div>
+                                <IalaAssistant />
                             </div>
                         )}
                     </>
