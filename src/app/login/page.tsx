@@ -4,9 +4,11 @@ import { useAuth } from "@/components/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { Anchor, LogIn, Key, Mail, AlertTriangle, UserPlus, CheckCircle, ArrowLeft } from "lucide-react";
+import { useLanguage } from "@/components/LanguageContext";
 
 function LoginContent() {
     const { user, loginWithEmail, signUpWithEmail, isAdmin, isClient, loading } = useAuth();
+    const { t } = useLanguage();
     const router = useRouter();
     const searchParams = useSearchParams();
     const roleParam = searchParams.get("role");
@@ -48,9 +50,9 @@ function LoginContent() {
         } catch (err: any) {
             console.error(err);
             if (isRegistering) {
-                setError(err.message || "Registration failed. Try again.");
+                setError(err.message || (t.login.regFailed || "Registration failed. Try again."));
             } else {
-                setError("Invalid credentials. Access denied.");
+                setError(t.login.invalidCreds || "Invalid credentials. Access denied.");
             }
             setIsLoggingIn(false);
         }
@@ -74,7 +76,7 @@ function LoginContent() {
                 className="absolute top-8 left-8 md:top-12 md:left-12 flex items-center gap-2 text-maritime-teal/60 hover:text-maritime-teal transition-colors text-xs uppercase tracking-[0.2em] group z-20"
             >
                 <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                Return to Home
+                {t.login.returnHome}
             </button>
 
             {/* Decorative Background */}
@@ -88,32 +90,32 @@ function LoginContent() {
 
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-maritime-ocean/30 bg-maritime-ocean/5 text-maritime-teal text-xs uppercase tracking-widest">
                     <Anchor className="w-3 h-3" />
-                    <span>NavAI Terminal</span>
+                    <span>{t.login.terminal}</span>
                 </div>
 
                 <div className="space-y-2">
                     <h1 className="text-3xl font-light text-maritime-brass">
-                        {isRegistering ? "Create Account" : (isClientRole ? "Client" : "Admin")} <span className="font-extrabold text-maritime-ocean italic">{isRegistering ? "Access" : "Portal"}</span>
+                        {isRegistering ? t.login.createAccount : (isClientRole ? t.login.client : t.login.admin)} <span className="font-extrabold text-maritime-ocean italic">{isRegistering ? t.login.access : t.login.portal}</span>
                     </h1>
                     <p className="text-sm text-maritime-teal/60">
                         {isRegistering
-                            ? "Join the next generation of maritime professionals."
+                            ? t.login.joinGeneration
                             : (isClientRole
-                                ? "Access your maritime tools and academy."
-                                : "Secure access for maritime intelligence management.")}
+                                ? t.login.accessTools
+                                : t.login.secureAccess)}
                     </p>
                 </div>
 
                 {user && !isAdmin && !isClientRole ? (
                     <div className="p-4 bg-maritime-orange/10 border border-maritime-orange/30 rounded-xl text-maritime-orange text-sm flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4" />
-                        <span>Access denied. Restricted to Captain Mariner.</span>
+                        <span>{t.login.denied}</span>
                     </div>
                 ) : null}
 
                 <form onSubmit={handleLogin} className="space-y-4 text-left">
                     <div className="space-y-1">
-                        <label className="text-[10px] uppercase tracking-widest text-maritime-teal/60 ml-2">Email Identifier</label>
+                        <label className="text-[10px] uppercase tracking-widest text-maritime-teal/60 ml-2">{t.login.emailIdentifier}</label>
                         <div className="relative">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-maritime-teal/40" />
                             <input
@@ -128,7 +130,7 @@ function LoginContent() {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-[10px] uppercase tracking-widest text-maritime-teal/60 ml-2">Access Key</label>
+                        <label className="text-[10px] uppercase tracking-widest text-maritime-teal/60 ml-2">{t.login.accessKey}</label>
                         <div className="relative">
                             <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-maritime-teal/40" />
                             <input
@@ -146,8 +148,8 @@ function LoginContent() {
                         <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-sm flex items-start gap-3 text-left">
                             <CheckCircle className="w-5 h-5 shrink-0" />
                             <div className="space-y-1">
-                                <p className="font-bold">Account created successfully!</p>
-                                <p className="opacity-80 text-xs">A verification email has been sent to <span className="text-white font-mono">{email}</span>. Please check your inbox and confirm your address.</p>
+                                <p className="font-bold">{t.login.successCreated}</p>
+                                <p className="opacity-80 text-xs">{t.login.verificationEmail.replace('{{email}}', email)}</p>
                             </div>
                         </div>
                     )}
@@ -172,7 +174,7 @@ function LoginContent() {
                                 ) : (
                                     <LogIn className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                                 )}
-                                <span>{isRegistering ? "Create Account" : "Authenticate"}</span>
+                                <span>{isRegistering ? t.login.createAccount : t.login.authenticate}</span>
                             </>
                         )}
                     </button>
@@ -186,13 +188,13 @@ function LoginContent() {
                             }}
                             className="text-xs text-maritime-teal hover:text-maritime-orange transition-colors uppercase tracking-widest mt-4"
                         >
-                            {isRegistering ? "Already have an account? Login" : "Don't have an account? Sign up"}
+                            {isRegistering ? t.login.alreadyAccount : t.login.noAccount}
                         </button>
                     </div>
                 </form>
 
                 <p className="text-[10px] text-maritime-teal/40 uppercase tracking-widest">
-                    Authorized personnel only
+                    {t.login.authorizedOnly}
                 </p>
             </div>
         </main>

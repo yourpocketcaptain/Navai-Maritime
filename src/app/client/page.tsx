@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Anchor, BookOpen, Calculator, LogOut, Compass, MapIcon } from "lucide-react";
+import { useLanguage } from "@/components/LanguageContext";
+import LanguageSelector from "@/components/LanguageSelector";
 
 const OfflineNauticalMap = dynamic(() => import("@/components/OfflineNauticalMap"), {
     ssr: false,
@@ -20,6 +22,7 @@ const OfflineNauticalMap = dynamic(() => import("@/components/OfflineNauticalMap
 
 export default function ClientDashboard() {
     const { user, isClient, logout, loading } = useAuth();
+    const { t } = useLanguage();
     const router = useRouter();
 
     useEffect(() => {
@@ -40,29 +43,29 @@ export default function ClientDashboard() {
 
     const cards = [
         {
-            title: "Maritime Academy",
-            description: "Access structured maritime lessons and curricula.",
+            title: t.client.modules.academy.title,
+            description: t.client.modules.academy.desc,
             icon: BookOpen,
             href: "/client/academy",
             color: "text-maritime-teal",
         },
         {
-            title: "Simulators",
-            description: "Interactive operational scenarios and training simulations.",
+            title: t.client.modules.simulators.title,
+            description: t.client.modules.simulators.desc,
             icon: Anchor,
             href: "/client/simulators",
             color: "text-maritime-ocean",
         },
         {
-            title: "Global Marine Weather",
-            description: "Real-time global weather data, meteograms and nautical charts.",
+            title: t.client.modules.weather.title,
+            description: t.client.modules.weather.desc,
             icon: MapIcon,
             href: "/client/navigation",
             color: "text-maritime-orange",
         },
         {
-            title: "Fleet Tools",
-            description: "Functional maritime utilities for navigation and operations.",
+            title: t.client.modules.tools.title,
+            description: t.client.modules.tools.desc,
             icon: Calculator,
             href: "/client/tools",
             color: "text-maritime-brass",
@@ -77,23 +80,26 @@ export default function ClientDashboard() {
                     <div className="space-y-4">
                         <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full border border-maritime-ocean/30 bg-maritime-ocean/5 text-maritime-teal text-[10px] uppercase tracking-widest">
                             <Anchor className="w-3 h-3" />
-                            <span>Client Portal</span>
+                            <span>{t.client.portal}</span>
                         </div>
                         <h1 className="text-4xl font-light text-maritime-brass">
-                            Welcome, <span className="font-extrabold text-maritime-teal italic">Officer</span>
+                            {t.client.welcome} <span className="font-extrabold text-maritime-teal italic">{t.client.officer}</span>
                         </h1>
                         <p className="text-maritime-teal/60 text-sm font-mono tracking-tighter">
-                            Awaiting operational requirements.
+                            {t.client.awaiting}
                         </p>
                     </div>
 
-                    <button
-                        onClick={() => logout()}
-                        className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors text-xs uppercase tracking-widest"
-                    >
-                        <LogOut className="w-4 h-4" />
-                        Log Out
-                    </button>
+                    <div className="flex items-center gap-4">
+                        <LanguageSelector />
+                        <button
+                            onClick={() => logout()}
+                            className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors text-xs uppercase tracking-widest"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            {t.client.logout}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Dashboard Grid */}
@@ -126,7 +132,7 @@ export default function ClientDashboard() {
                             )}
 
                             <div className="flex items-center text-xs font-bold uppercase tracking-widest text-maritime-ocean gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                Enter Module <Compass className="w-4 h-4" />
+                                {t.client.enterModule} <Compass className="w-4 h-4" />
                             </div>
                         </button>
                     ))}

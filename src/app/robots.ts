@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
         rules: {
             userAgent: '*',
             allow: '/',
-            disallow: ['/admin/', '/client/'],
+            disallow: ['/admin/', '/client/', '/login/'],
         },
         sitemap: 'https://navaitech.com/sitemap.xml',
     }

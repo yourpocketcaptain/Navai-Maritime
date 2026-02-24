@@ -37,14 +37,19 @@ import {
     Wifi,
     WifiOff,
     Laptop,
-    Instagram,
     CheckCircle2,
-    Lock
+    Lock,
+    Languages,
+    ChevronDown,
+    Instagram
 } from "lucide-react";
+import { useLanguage } from "@/components/LanguageContext";
+import LanguageSelector from "@/components/LanguageSelector";
 
 import { BlogPost } from "@/lib/blog";
 
 export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogPost[] }) {
+    const { language, t } = useLanguage();
 
 
     return (
@@ -58,37 +63,39 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
 
             {/* Top Navigation */}
             <nav className="absolute top-0 w-full p-6 flex justify-between items-center z-50 max-w-7xl mx-auto left-0 right-0">
-                <div className="flex items-center gap-2">
-                    {/* Logo placeholder or simple text */}
-                    <Anchor className="w-6 h-6 text-maritime-orange" />
-                    <span className="font-bold text-lg tracking-tight text-white hidden sm:block">NAVAI</span>
-                    <Link
-                        href="/blog"
-                        className="ml-6 text-[10px] font-bold uppercase tracking-widest text-maritime-teal/60 hover:text-maritime-orange transition-colors hidden md:block"
-                    >
-                        Maritime Blog
-                    </Link>
+                <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                        <Anchor className="w-6 h-6 text-maritime-orange" />
+                        <span className="font-bold text-lg tracking-tight text-white hidden sm:block">NAVAI</span>
+                    </div>
+
+                    <div className="hidden md:flex items-center gap-6">
+                        <Link
+                            href="/blog"
+                            className="text-[10px] font-bold uppercase tracking-widest text-maritime-teal/60 hover:text-maritime-orange transition-colors"
+                        >
+                            {t.nav.blog}
+                        </Link>
+
+                        <LanguageSelector />
+                    </div>
                 </div>
                 <Link
                     href="/login?role=client"
                     className="px-5 py-2 rounded-full border border-white/10 bg-white/5 text-maritime-teal hover:bg-white/10 transition-all text-xs font-bold uppercase tracking-widest backdrop-blur-sm hover:scale-105"
                 >
-                    Client Login
+                    {t.nav.login}
                 </Link>
             </nav>
 
             {/* --- HERO SECTION --- */}
             <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 flex flex-col items-center text-center z-10 max-w-5xl mx-auto">
                 <h1 className="text-5xl sm:text-6xl md:text-8xl font-light tracking-tight text-maritime-brass leading-[1.1] mb-8">
-                    Your Digital <span className="font-extrabold text-maritime-ocean italic">First Mate</span>
+                    {t.hero.title} <span className="font-extrabold text-maritime-ocean italic">{t.hero.subtitle}</span>
                 </h1>
 
                 <p className="text-lg md:text-2xl text-maritime-teal/80 max-w-3xl mx-auto font-light leading-relaxed mb-12">
-                    Master maritime navigation with powerful tools on the <span className="font-bold text-white">Web</span> and <span className="font-bold text-maritime-orange">Offline</span> on iOS.
-                    <br />
-                    <br />
-                    <span className="block mt-6 text-base md:text-lg text-maritime-teal/80 font-light">
-                    </span>
+                    {t.hero.desc1} <span className="font-bold text-white">{t.hero.desc2}</span> {t.hero.desc3} <span className="font-bold text-maritime-orange">{t.hero.desc4}</span> {t.hero.desc5}
                 </p>
 
                 <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
@@ -102,8 +109,8 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
                         </div>
                         <Globe className="w-6 h-6" />
                         <div className="flex flex-col items-start leading-none text-left">
-                            <span className="text-[10px] uppercase tracking-tighter opacity-80 text-green-400 font-bold">Free Access</span>
-                            <span className="text-xl">Sign Up Web Platform</span>
+                            <span className="text-[10px] uppercase tracking-tighter opacity-80 text-green-400 font-bold">{t.hero.freeAccess}</span>
+                            <span className="text-xl">{t.hero.signup}</span>
                         </div>
                     </Link>
 
@@ -119,8 +126,8 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
                             </div>
                             <AppleIcon className="w-6 h-6" />
                             <div className="flex flex-col items-start leading-none text-left">
-                                <span className="text-[10px] uppercase tracking-tighter opacity-80">Download on the</span>
-                                <span className="text-xl">App Store</span>
+                                <span className="text-[10px] uppercase tracking-tighter opacity-80">{t.hero.downloadApp}</span>
+                                <span className="text-xl">{t.hero.appStore}</span>
                             </div>
                         </a>
 
@@ -135,22 +142,18 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
                     <div className="space-y-8 order-2 md:order-1">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-maritime-ocean/10 border border-maritime-ocean/20 text-maritime-teal text-xs uppercase tracking-widest">
                             <Monitor className="w-3 h-3" />
-                            <span>Commandant's Console</span>
+                            <span>{t.feature1.tag}</span>
                         </div>
                         <h2 className="text-4xl md:text-5xl font-light text-white leading-tight">
-                            Advanced <span className="font-bold text-maritime-ocean">Maritime Planning</span> <br />
-                            on the Big Screen.
+                            {t.feature1.title1} <span className="font-bold text-maritime-ocean">{t.feature1.title2}</span> <br />
+                            {t.feature1.title3}
                         </h2>
                         <p className="text-lg text-maritime-teal/70 leading-relaxed font-light">
-                            The ultimate planning station. Analyze weather patterns, visualize routes on expansive charts, and optimize fleet movements from the comfort of your desk.
+                            {t.feature1.desc}
                         </p>
 
                         <ul className="space-y-4 mt-4">
-                            {[
-                                "Global Weather Routing",
-                                "Live NOAA GFS Overlays",
-                                "Meteogram Analysis"
-                            ].map(item => (
+                            {t.feature1.items.map((item: string) => (
                                 <li key={item} className="flex items-center gap-3 text-sm text-white/80">
                                     <CheckCircle2 className="w-5 h-5 text-maritime-ocean" />
                                     {item}
@@ -159,7 +162,7 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
                         </ul>
 
                         <Link href="/login?role=client" className="inline-flex items-center gap-2 text-sm font-bold text-white uppercase tracking-widest hover:text-maritime-ocean transition-colors pt-4">
-                            <span>Launch Console</span>
+                            <span>{t.feature1.cta}</span>
                             <div className="w-8 h-[1px] bg-current" />
                         </Link>
                     </div>
@@ -214,22 +217,18 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
                     <div className="space-y-8 order-2">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-maritime-orange/10 border border-maritime-orange/20 text-maritime-orange text-xs uppercase tracking-widest">
                             <Smartphone className="w-3 h-3" />
-                            <span>Pocket First Mate</span>
+                            <span>{t.feature2.tag}</span>
                         </div>
                         <h2 className="text-4xl md:text-5xl font-light text-white leading-tight">
-                            Autonomous <span className="font-bold text-maritime-orange">Offline Navigation</span> <br />
-                            At Sea.
+                            {t.feature2.title1} <span className="font-bold text-maritime-orange">{t.feature2.title2}</span> <br />
+                            {t.feature2.title3}
                         </h2>
                         <p className="text-lg text-white/60 leading-relaxed font-light">
-                            Total independence when the signal drops. All calculation engines, regulation libraries, and safety tools come with you on the bridge, or in your pocket.
+                            {t.feature2.desc}
                         </p>
 
                         <ul className="space-y-4 mt-4">
-                            {[
-                                "100% Offline Functionality",
-                                "Bridge-Ready Night Mode",
-                                "Instant Calculations"
-                            ].map(item => (
+                            {t.feature2.items.map((item: string) => (
                                 <li key={item} className="flex items-center gap-3 text-sm text-white/80">
                                     <CheckCircle2 className="w-5 h-5 text-maritime-orange" />
                                     {item}
@@ -243,7 +242,7 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 text-sm font-bold text-white uppercase tracking-widest hover:text-maritime-orange transition-colors pt-4"
                         >
-                            <span>Download on the App Store</span>
+                            <span>{t.feature2.cta}</span>
                             <div className="w-8 h-[1px] bg-current" />
                         </a>
                     </div>
@@ -255,10 +254,10 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
                         <h2 className="text-3xl md:text-5xl font-light text-white">
-                            Professional <span className="font-bold text-maritime-teal">Toolbox</span>
+                            {t.feature3.title1} <span className="font-bold text-maritime-teal">{t.feature3.title2}</span>
                         </h2>
                         <p className="text-maritime-teal/60 text-lg md:text-xl font-light">
-                            A suite of utilities designed for the modern officer.
+                            {t.feature3.desc}
                         </p>
                     </div>
 
@@ -268,9 +267,9 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
                             <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-maritime-teal group-hover:scale-110 group-hover:bg-maritime-teal group-hover:text-black transition-all duration-300">
                                 <Globe className="w-6 h-6" />
                             </div>
-                            <h3 className="text-xl font-bold text-white">Great Circle</h3>
+                            <h3 className="text-xl font-bold text-white">{t.feature3.items[0]}</h3>
                             <p className="text-white/50 leading-relaxed text-sm">
-                                Calculate shortest routes and distance savings with precision geodesic algorithms.
+                                {language === 'en' ? 'Professional geodesic algorithms' : 'Algoritmos geodésicos profesionales'}
                             </p>
                         </div>
 
@@ -339,12 +338,12 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <GraduationCap className="w-5 h-5 text-maritime-orange" />
-                                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-maritime-orange">Knowledge Base</span>
+                                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-maritime-orange">{t.academy.badge}</span>
                             </div>
-                            <h2 className="text-3xl md:text-4xl font-light text-white">Maritime <span className="font-bold text-white">Academy</span></h2>
+                            <h2 className="text-3xl md:text-4xl font-light text-white">{t.academy.title}</h2>
                         </div>
                         <div className="text-white/50 text-sm max-w-sm text-right md:text-right">
-                            Prepare for exams or refresh your memory. A comprehensive library of maritime knowledge.
+                            {t.academy.desc}
                         </div>
                     </div>
 
@@ -379,17 +378,17 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
                         <div className="space-y-4">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-maritime-ocean/10 border border-maritime-ocean/20 text-maritime-teal text-[10px] uppercase tracking-widest font-bold">
                                 <BookOpen className="w-3 h-3" />
-                                <span>Bridge Intelligence</span>
+                                <span>{t.feature3.tag}</span>
                             </div>
                             <h2 className="text-4xl md:text-5xl font-light text-white leading-tight">
-                                Latest <span className="font-bold text-maritime-ocean italic">Insights</span>
+                                {t.blog.title} <span className="font-bold text-maritime-ocean italic">{t.blog.subtitle}</span>
                             </h2>
                         </div>
                         <Link
                             href="/blog"
                             className="group flex items-center gap-2 text-sm font-bold text-white uppercase tracking-widest hover:text-maritime-ocean transition-colors"
                         >
-                            <span>Explore and learn</span>
+                            <span>{t.blog.cta}</span>
                             <div className="w-8 h-[1px] bg-white group-hover:bg-maritime-ocean transition-colors" />
                         </Link>
                     </div>
@@ -454,15 +453,15 @@ export default function HomeClient({ initialPosts = [] }: { initialPosts?: BlogP
                 <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] text-maritime-teal/30 uppercase tracking-[0.2em] z-10">
                     <div className="flex items-center gap-2">
                         <Ship className="w-4 h-4" />
-                        <span>© 2026 NavAI Navigation Systems</span>
+                        <span>© 2026 NavAI Navigation Systems - {t.footer.rights}</span>
                     </div>
                     <div className="flex gap-8 items-center flex-wrap justify-center">
                         <a href="https://www.instagram.com/navaitech" target="_blank" rel="noopener noreferrer" className="hover:text-maritime-orange transition-colors">
                             <Instagram className="w-4 h-4" />
                         </a>
-                        <Link href="/blog" className="hover:text-maritime-orange transition-colors">Blog</Link>
-                        <Link href="#" className="hover:text-maritime-orange transition-colors">Privacy</Link>
-                        <a href="#" className="hover:text-maritime-orange transition-colors">Terms</a>
+                        <Link href="/blog" className="hover:text-maritime-orange transition-colors">{t.nav.blog}</Link>
+                        <Link href="#" className="hover:text-maritime-orange transition-colors">{t.footer.privacy}</Link>
+                        <a href="#" className="hover:text-maritime-orange transition-colors">{t.footer.terms}</a>
                         <a href="mailto:hello@navaitech.com" className="hover:text-maritime-orange transition-colors">Contact</a>
                         <Link href="/login" className="hover:text-maritime-orange transition-colors opacity-50 hover:opacity-100">Dev Access</Link>
                     </div>

@@ -5,8 +5,46 @@ import React, { useState, useMemo } from 'react';
 import {
     Anchor, Wind, Ship, Ruler, ChevronRight, ChevronLeft,
     AlertTriangle, CheckCircle, Info, Waves, CloudRain,
-    ArrowDown, Navigation, Anchor as AnchorIcon, X, HelpCircle
+    ArrowDown, Navigation, Anchor as AnchorIcon, X, HelpCircle,
+    Sailboat
 } from 'lucide-react';
+
+// --- Custom Icons ---
+
+const MotorboatIcon = ({ className }: { className?: string }) => (
+    <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+    >
+        <path d="M2 15h20l-2 5H4l-2-5Z" />
+        <path d="M6 15v-4h10l2 4" />
+        <path d="M9 11V8h4v3" />
+        <circle cx="17" cy="18" r="1" fill="currentColor" />
+    </svg>
+);
+
+const CatamaranIcon = ({ className }: { className?: string }) => (
+    <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+    >
+        <path d="M3 18h4v2H3v-2Z" />
+        <path d="M17 18h4v2h-4v-2Z" />
+        <path d="M5 18V14h14v4" />
+        <path d="M12 14V4l5 4-5 2" />
+        <path d="M7 14h10" />
+    </svg>
+);
 
 // --- Types ---
 
@@ -35,9 +73,9 @@ interface SimulationState {
 // --- Constants & Assets ---
 
 const SHIP_TYPES: { id: ShipType; label: string; icon: any }[] = [
-    { id: 'sailboat', label: 'Sailboat', icon: Ship }, // Generic fallback for now
-    { id: 'motorboat', label: 'Motorboat', icon: Ship },
-    { id: 'catamaran', label: 'Catamaran', icon: Ship },
+    { id: 'sailboat', label: 'Sailboat', icon: Sailboat },
+    { id: 'motorboat', label: 'Motorboat', icon: MotorboatIcon },
+    { id: 'catamaran', label: 'Catamaran', icon: CatamaranIcon },
 ];
 
 const ANCHOR_TYPES: { id: AnchorType; label: string; holding: number }[] = [
@@ -400,9 +438,25 @@ export default function SmartAnchorSimulator() {
 
                                 {/* Boat */}
                                 <g transform={`translate(${boatX}, ${waterY - 15})`}>
-                                    <path d="M 0,15 Q 10,15 20,10 L 40,10 Q 45,15 40,15 Z" fill="white" />
-                                    <line x1="20" y1="10" x2="20" y2="-10" stroke="white" />
-                                    <path d="M 20,-10 L 35,5 L 20,5 Z" fill="white" opacity="0.5" />
+                                    {state.vessel.type === 'sailboat' ? (
+                                        <>
+                                            <path d="M 0,15 Q 10,15 20,10 L 40,10 Q 45,15 40,15 Z" fill="white" />
+                                            <line x1="20" y1="10" x2="20" y2="-10" stroke="white" />
+                                            <path d="M 20,-10 L 35,5 L 20,5 Z" fill="white" opacity="0.5" />
+                                        </>
+                                    ) : state.vessel.type === 'motorboat' ? (
+                                        <>
+                                            <path d="M 0,15 L 40,15 L 38,8 L 5,8 Z" fill="white" />
+                                            <path d="M 10,8 L 12,3 L 25,3 L 30,8 Z" fill="white" opacity="0.6" />
+                                        </>
+                                    ) : ( // catamaran
+                                        <>
+                                            <path d="M 0,15 L 40,15 L 38,12 L 2,12 Z" fill="white" />
+                                            <path d="M 5,12 L 7,8 L 33,8 L 35,12 Z" fill="white" opacity="0.4" />
+                                            <line x1="20" y1="8" x2="20" y2="-10" stroke="white" />
+                                            <path d="M 20,-10 L 32,2 L 20,2 Z" fill="white" opacity="0.5" />
+                                        </>
+                                    )}
                                 </g>
 
                                 {/* Annotations */}

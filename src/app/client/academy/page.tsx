@@ -1,6 +1,8 @@
 "use client";
 
 import { useAuth } from "@/components/AuthContext";
+import { useLanguage } from "@/components/LanguageContext";
+import LanguageSelector from "@/components/LanguageSelector";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
@@ -33,6 +35,7 @@ interface LessonDetail extends Lesson {
 
 export default function ClientAcademyPage() {
     const { isClient, rank, loading: authLoading } = useAuth();
+    const { t } = useLanguage();
     const router = useRouter();
 
     // View State
@@ -202,7 +205,7 @@ export default function ClientAcademyPage() {
     const handleSelectCategory = (category: Category) => {
         const isLocked = rank === "cadet" && !category.freeforcadet;
         if (isLocked) {
-            alert("This category is exclusive for Captain rank. Please level up to access.");
+            alert(t.client.academy.lockedBriefing);
             return;
         }
         setSelectedCategoryId(category.id);
@@ -219,7 +222,7 @@ export default function ClientAcademyPage() {
         try {
             const teoriaRef = collection(db, "lessons", lesson.id, "teoria");
             const teoriaSnap = await getDocs(teoriaRef);
-            let content = "No content available.";
+            let content = t.client.academy.noContent;
             let pdfUrl: string | undefined;
 
             if (!teoriaSnap.empty) {
@@ -266,7 +269,7 @@ export default function ClientAcademyPage() {
             <div className="max-w-6xl mx-auto space-y-8">
                 <button onClick={handleBack} className="group flex items-center gap-2 text-maritime-teal/60 hover:text-maritime-teal transition-colors text-xs uppercase tracking-[0.2em]">
                     <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                    {view === "categories" ? "Exit Academy" : view === "lessons" ? "Back to Categories" : "Back to Module List"}
+                    {view === "categories" ? t.client.academy.exitAcademy : view === "lessons" ? t.client.academy.backToCategories : t.client.academy.backToModuleList}
                 </button>
 
                 {view === "categories" ? (
@@ -275,23 +278,26 @@ export default function ClientAcademyPage() {
                             <div className="space-y-4">
                                 <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full border border-maritime-ocean/30 bg-maritime-ocean/5 text-maritime-teal text-[10px] uppercase tracking-widest font-bold">
                                     <GraduationCap className="w-3 h-3" />
-                                    <span>{rank === 'captain' ? 'CAPTAIN PRIVILEGES' : 'CADET CURRICULUM'}</span>
+                                    <span>{rank === 'captain' ? t.client.academy.captainPrivileges : t.client.academy.cadetCurriculum}</span>
                                 </div>
                                 <h1 className="text-4xl md:text-5xl font-light text-maritime-brass">
-                                    Study <span className="font-extrabold text-maritime-ocean italic">Modules</span>
+                                    {t.client.academy.studyModules.split(' ').slice(0, -1).join(' ')} <span className="font-extrabold text-maritime-ocean italic">{t.client.academy.studyModules.split(' ').slice(-1)}</span>
                                 </h1>
                             </div>
 
 
-                            <div className="relative group max-w-md">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-maritime-teal/40 group-focus-within:text-maritime-ocean transition-colors" />
-                                <input
-                                    type="text"
-                                    placeholder="Search modules..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-maritime-ocean transition-all backdrop-blur-md"
-                                />
+                            <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+                                <LanguageSelector />
+                                <div className="relative group w-full max-w-md">
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-maritime-teal/40 group-focus-within:text-maritime-ocean transition-colors" />
+                                    <input
+                                        type="text"
+                                        placeholder={t.client.academy.searchModulesPlaceholder}
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-maritime-ocean transition-all backdrop-blur-md"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -303,7 +309,7 @@ export default function ClientAcademyPage() {
                                 {filteredCategories.filter(c => c.freeforcadet).length > 0 && (
                                     <div className="space-y-6">
                                         <h2 className="text-2xl font-light text-maritime-teal border-b border-white/10 pb-4 flex items-center gap-3">
-                                            <span className="text-3xl">🌊</span> Level 1: The Global Sailor (Cadet)
+                                            <span className="text-3xl">🌊</span> {t.client.academy.level1Title}
                                         </h2>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {filteredCategories.filter(c => c.freeforcadet).map((cat) => {
@@ -344,7 +350,7 @@ export default function ClientAcademyPage() {
                                 {filteredCategories.filter(c => !c.freeforcadet).length > 0 && (
                                     <div className="space-y-6">
                                         <h2 className="text-2xl font-light text-maritime-brass border-b border-white/10 pb-4 flex items-center gap-3">
-                                            <span className="text-3xl">⚓</span> Level 2: The Captain (Captain)
+                                            <span className="text-3xl">⚓</span> {t.client.academy.level2Title}
                                         </h2>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {filteredCategories.filter(c => !c.freeforcadet).map((cat) => {
@@ -390,13 +396,13 @@ export default function ClientAcademyPage() {
                                 <Layers className="w-3 h-3" />
                                 <span>{selectedCategoryName}</span>
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-light text-maritime-brass">Section <span className="font-extrabold text-maritime-ocean italic">Knowledge</span></h1>
+                            <h1 className="text-4xl md:text-5xl font-light text-maritime-brass">{t.client.academy.sectionKnowledge.split(' ').slice(0, -1).join(' ')} <span className="font-extrabold text-maritime-ocean italic">{t.client.academy.sectionKnowledge.split(' ').slice(-1)}</span></h1>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {filteredLessons.map((lesson) => (
                                 <button key={lesson.id} onClick={() => handleOpenLesson(lesson)} className="glass border border-white/10 rounded-2xl p-6 text-left group hover:border-maritime-ocean/50 transition-all flex items-center justify-between">
                                     <div className="space-y-1">
-                                        <div className="text-[10px] font-mono text-maritime-ocean uppercase tracking-tighter">Module 0{lesson.order}</div>
+                                        <div className="text-[10px] font-mono text-maritime-ocean uppercase tracking-tighter">{t.client.academy.modulePrefix} 0{lesson.order}</div>
                                         <h3 className="font-bold text-maritime-brass text-lg group-hover:text-maritime-teal transition-colors">{lesson.title}</h3>
                                     </div>
                                     <div className="p-3 bg-white/5 rounded-xl group-hover:bg-maritime-ocean group-hover:text-maritime-midnight transition-all"><ChevronRight className="w-5 h-5" /></div>
@@ -423,7 +429,7 @@ export default function ClientAcademyPage() {
                                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-maritime-teal/40 group-focus-within:text-maritime-teal transition-colors" />
                                         <input
                                             type="text"
-                                            placeholder="Search in lesson..."
+                                            placeholder={t.client.academy.searchInLesson}
                                             value={lessonSearchTerm}
                                             onChange={(e) => setLessonSearchTerm(e.target.value)}
                                             className="w-full bg-maritime-midnight/80 backdrop-blur-xl border border-white/20 rounded-2xl pl-12 pr-32 py-3 text-sm focus:outline-none focus:border-maritime-teal/50 transition-all placeholder:text-white/40 text-maritime-teal shadow-xl"
@@ -464,8 +470,8 @@ export default function ClientAcademyPage() {
                                                     <FileText className="w-5 h-5" />
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-bold text-maritime-ocean">Associated Documentation</h4>
-                                                    <p className="text-xs text-white/50">Official PDF Reference Material</p>
+                                                    <h4 className="font-bold text-maritime-ocean">{t.client.academy.associatedDocs}</h4>
+                                                    <p className="text-xs text-white/50">{t.client.academy.officialPdf}</p>
                                                 </div>
                                             </div>
                                             <ExternalLink className="w-4 h-4 text-maritime-ocean/50 group-hover:text-maritime-ocean transition-colors" />

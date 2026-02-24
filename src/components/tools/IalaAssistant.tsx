@@ -114,9 +114,7 @@ export default function IalaAssistant() {
 
     // Identification State (Day)
     const [selectedColors, setSelectedColors] = useState<string[]>([]);
-    const [selectedPattern, setSelectedPattern] = useState<ColorPattern | null>(null);
     const [selectedShape, setSelectedShape] = useState<BuoyShape | null>(null);
-    const [selectedTopmark, setSelectedTopmark] = useState<TopmarkType | 'None' | null>(null);
 
     // Light Tapper State (Night)
     const [taps, setTaps] = useState<number[]>([]);
@@ -128,6 +126,7 @@ export default function IalaAssistant() {
     const [potentialMatches, setPotentialMatches] = useState<IalaMark[]>([]);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [showRegionMap, setShowRegionMap] = useState(false);
+    const [selectedMark, setSelectedMark] = useState<IalaMark | null>(null);
 
     // --- Logic ---
 
@@ -151,9 +150,7 @@ export default function IalaAssistant() {
     const resetWizard = () => {
         setStep(1);
         setSelectedColors([]);
-        setSelectedPattern(null);
         setSelectedShape(null);
-        setSelectedTopmark(null);
         setTaps([]);
         setLastTap(0);
         setDetectedRhythm(null);
@@ -186,9 +183,7 @@ export default function IalaAssistant() {
                     return false;
                 }
 
-                if (selectedPattern && m.day.pattern !== selectedPattern) return false;
                 if (selectedShape && m.day.shape !== selectedShape) return false;
-                if (selectedTopmark !== null && m.day.topmark !== selectedTopmark) return false;
                 return true;
             } else {
                 if (selectedLightColor && m.night.lightColor !== selectedLightColor) return false;
@@ -370,23 +365,9 @@ export default function IalaAssistant() {
                 </div>
             </div>
 
-            <div className="space-y-4">
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-2">2. PATTERN</span>
-                <div className="flex flex-wrap gap-3">
-                    {['Solid', 'Horizontal', 'Vertical', 'Horizontal Band'].map(p => (
-                        <button
-                            key={p}
-                            onClick={() => setSelectedPattern(p as ColorPattern)}
-                            className={`px-4 py-3 rounded-2xl border-2 transition-all ${selectedPattern === p ? 'border-white bg-white/10' : 'border-white/5 bg-white/5'}`}
-                        >
-                            <span className={`text-[10px] font-black uppercase tracking-widest ${selectedPattern === p ? 'text-white' : 'text-white/40'}`}>{p}</span>
-                        </button>
-                    ))}
-                </div>
-            </div>
 
             <div className="space-y-4">
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-2">3. BUOY SHAPE</span>
+                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-2">2. BUOY SHAPE</span>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                     {(['Can', 'Nun', 'Pillar', 'Spar', 'Spherical'] as BuoyShape[]).map(s => (
                         <button
@@ -405,30 +386,10 @@ export default function IalaAssistant() {
                 </div>
             </div>
 
-            <div className="space-y-4">
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-2">4. TOPMARK</span>
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                    {([
-                        '2 Cones Up', '2 Cones Down', '2 Cones Base-to-Base', '2 Cones Point-to-Point',
-                        '2 Spheres', '1 Sphere', 'X', 'Cross', 'None'
-                    ] as (TopmarkType | 'None')[]).map(t => (
-                        <button
-                            key={t}
-                            onClick={() => setSelectedTopmark(t)}
-                            className={`p-5 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all ${selectedTopmark === t ? 'border-maritime-brass bg-maritime-brass/10' : 'border-white/5 bg-white/5 hover:bg-white/10'}`}
-                        >
-                            <div className="w-10 h-10">
-                                <TopmarkIcon type={t} color={selectedTopmark === t ? '#fbbf24' : '#64748b'} />
-                            </div>
-                            <span className={`text-[8px] font-black uppercase tracking-tighter text-center h-4 ${selectedTopmark === t ? 'text-maritime-brass' : 'text-white/30'}`}>{t}</span>
-                        </button>
-                    ))}
-                </div>
-            </div>
 
             <div className="pt-6">
                 <button
-                    disabled={!selectedColors.length && !selectedShape && !selectedTopmark}
+                    disabled={!selectedColors.length && !selectedShape}
                     onClick={runIdentification}
                     className="w-full py-6 bg-maritime-ocean disabled:bg-white/5 disabled:text-white/10 text-maritime-midnight font-black uppercase tracking-[0.3em] rounded-3xl shadow-2xl transition-all flex items-center justify-center gap-3"
                 >
@@ -582,13 +543,12 @@ export default function IalaAssistant() {
                                         </div>
                                         <span className="text-[9px] font-black text-maritime-ocean uppercase tracking-widest">Official Reference Diagram</span>
                                     </div>
-                                    <div className="relative aspect-video rounded-2xl overflow-hidden bg-white border border-gray-200">
+                                    <div className="relative aspect-video rounded-2xl overflow-hidden bg-[#f8fafc] border border-gray-200 p-4">
                                         <img
                                             src={match.officialImage}
                                             alt="Official reference"
                                             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
                                     </div>
                                 </div>
                             )}
@@ -659,32 +619,118 @@ export default function IalaAssistant() {
                 {view === 'library' && (
                     <div key="library" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {IALA_MARKS.filter(m => m.region === 'Both' || m.region === region).map(m => (
-                            <div key={m.id} className="p-6 bg-white/5 border border-white/10 rounded-3xl space-y-4 hover:bg-white/10 transition-colors">
-                                <motion.div
-                                    whileHover={{ rotateY: 180 }}
-                                    transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                                    className="h-40 bg-white/5 rounded-2xl flex items-center justify-center p-8 relative group cursor-pointer perspective-1000"
-                                >
-                                    <div className="w-16 h-16 relative transition-transform duration-500 preserve-3d">
-                                        <ShapeIcon type={m.day.shape} color={m.day.colors[0]} />
-                                        <div className="absolute -top-8 inset-x-0 h-8 flex justify-center">
-                                            <TopmarkIcon type={m.day.topmark as TopmarkType} color={m.day.colors[0]} />
-                                        </div>
+                            <div
+                                key={m.id}
+                                onClick={() => setSelectedMark(m)}
+                                className="p-6 bg-white/5 border border-white/10 rounded-3xl space-y-4 hover:bg-white/10 transition-all cursor-pointer group"
+                            >
+                                <div className="h-40 bg-white/5 rounded-2xl flex items-center justify-center p-4 relative overflow-hidden">
+                                    <div className="w-full h-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110 p-2">
+                                        {m.officialImage ? (
+                                            <div className="w-full h-full bg-white/90 backdrop-blur-sm rounded-xl p-2 flex items-center justify-center shadow-inner">
+                                                <img
+                                                    src={m.officialImage}
+                                                    alt={m.name}
+                                                    className="max-w-full max-h-full object-contain"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="w-16 h-16 opacity-40 group-hover:opacity-60 transition-opacity">
+                                                <ShapeIcon type={m.day.shape} color={m.day.colors[0]} />
+                                            </div>
+                                        )}
                                     </div>
-
-                                    {/* Back side of "3D" card (just showing details) */}
-                                    <div className="absolute inset-0 bg-maritime-ocean flex flex-col items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl text-center [transform:rotateY(180deg)]">
-                                        <span className="text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Instruction</span>
-                                        <p className="text-[10px] font-bold text-white uppercase leading-tight">{m.instruction}</p>
-                                    </div>
-                                </motion.div>
+                                    <div className="absolute inset-0 bg-maritime-ocean/0 group-hover:bg-maritime-ocean/5 transition-colors" />
+                                </div>
                                 <div>
                                     <h4 className="text-[10px] font-black text-maritime-ocean uppercase mb-1">{m.category}</h4>
-                                    <h3 className="text-xl font-black italic text-white uppercase tracking-tighter">{m.name}</h3>
+                                    <div className="flex justify-between items-start">
+                                        <h3 className="text-xl font-black italic text-white uppercase tracking-tighter leading-none">{m.name}</h3>
+                                        <div className="p-1.5 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Search className="w-3 h-3 text-white/40" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         ))}
                     </div>
+                )}
+            </AnimatePresence>
+
+            {/* Expanded Image Modal */}
+            <AnimatePresence>
+                {selectedMark && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8"
+                    >
+                        <div
+                            className="absolute inset-0 bg-maritime-midnight/90 backdrop-blur-xl"
+                            onClick={() => setSelectedMark(null)}
+                        />
+
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-5xl bg-white rounded-[3rem] overflow-hidden shadow-2xl flex flex-col md:flex-row"
+                        >
+                            <button
+                                onClick={() => setSelectedMark(null)}
+                                className="absolute top-6 right-6 z-10 p-3 bg-black/5 hover:bg-black/10 rounded-full transition-colors text-maritime-midnight"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+
+                            {/* Image Section */}
+                            <div className="flex-[1.2] bg-[#f8fafc] flex items-center justify-center p-8 md:p-16 border-b md:border-b-0 md:border-r border-gray-100 shadow-inner">
+                                {selectedMark.officialImage ? (
+                                    <img
+                                        src={selectedMark.officialImage}
+                                        alt={selectedMark.name}
+                                        className="w-full h-auto max-h-[60vh] object-contain drop-shadow-xl"
+                                    />
+                                ) : (
+                                    <div className="w-48 h-48 opacity-20">
+                                        <ShapeIcon type={selectedMark.day.shape} color="#000" />
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Info Section */}
+                            <div className="flex-1 p-8 md:p-12 flex flex-col justify-center gap-8">
+                                <div>
+                                    <h4 className="text-[10px] font-black text-maritime-ocean uppercase tracking-[0.4em] mb-3">{selectedMark.category}</h4>
+                                    <h2 className="text-4xl md:text-6xl font-black italic text-maritime-midnight uppercase tracking-tighter leading-none">{selectedMark.name}</h2>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="p-6 bg-red-500/5 border-2 border-red-500 rounded-2xl">
+                                        <h4 className="flex items-center gap-2 text-red-600 font-extrabold text-[10px] uppercase tracking-widest mb-1">
+                                            <AlertTriangle className="w-4 h-4" /> PILOT INSTRUCTION
+                                        </h4>
+                                        <p className="text-xl md:text-2xl font-black uppercase tracking-tight text-red-700 leading-none">{selectedMark.instruction}</p>
+                                    </div>
+
+                                    <div className="p-6 bg-gray-50 rounded-2xl border-2 border-gray-100">
+                                        <h4 className="flex items-center gap-2 text-gray-400 font-extrabold text-[10px] uppercase tracking-widest mb-1">
+                                            <Compass className="w-4 h-4" /> MEANING
+                                        </h4>
+                                        <p className="text-sm font-bold uppercase text-gray-800 leading-snug">{selectedMark.meaning}</p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => setSelectedMark(null)}
+                                    className="mt-4 py-6 bg-maritime-midnight text-white font-black uppercase tracking-[0.3em] rounded-[2rem] hover:scale-[1.02] transition-all shadow-xl shadow-black/20"
+                                >
+                                    CLOSE DETAILS
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
                 )}
             </AnimatePresence>
         </div>

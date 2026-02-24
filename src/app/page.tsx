@@ -10,6 +10,9 @@ export const metadata: Metadata = {
     title: "NavAI | Professional Maritime AI Assistant",
     description: "Advanced navigation tools and AI assistance for the modern mariner. Available online and offline.",
     images: ["/app-screenshot.png"],
+  },
+  alternates: {
+    canonical: '/',
   }
 };
 

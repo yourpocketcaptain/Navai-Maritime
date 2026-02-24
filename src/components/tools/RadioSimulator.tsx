@@ -5,7 +5,7 @@ import {
     Radio, ShieldAlert, AlertTriangle, Info, MessageSquare,
     ChevronRight, ChevronLeft, Send, Volume2, Globe,
     Anchor, Hash, Key, Plane, HelpCircle, X, Clock, Navigation, Ship,
-    Check, Lightbulb
+    Check, Lightbulb, ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -317,7 +317,8 @@ const TRANSLATIONS: Record<Language, any> = {
         protocolSub: "Select the communication type",
         scriptTitle: "Radio Script Builder",
         positionLabel: "My position is",
-        useGps: "Use Global Positioning",
+        useGps: "Auto GPS",
+        gpsNote: "(Random for learning)",
         positionPlaceholder: "Coordinates or Landmark...",
         problemLabel: "Nature of Distress / Info",
         soulsLabel: "P.O.B.",
@@ -396,6 +397,7 @@ const TRANSLATIONS: Record<Language, any> = {
         scriptTitle: "Constructor de Mensaje",
         positionLabel: "mi posición es",
         useGps: "Auto GPS",
+        gpsNote: "(Aleatoria para aprendizaje)",
         positionPlaceholder: "Coordenadas o Referencia...",
         problemLabel: "Naturaleza / Información",
         soulsLabel: "Nº Personas",
@@ -847,9 +849,10 @@ export default function RadioSimulator() {
                             <label className="text-[10px] uppercase font-black text-white/30 tracking-widest">{t.positionLabel}</label>
                             <button
                                 onClick={() => setState(s => ({ ...s, message: { ...s.message, position: "40º 42' N, 074º 00' W" } }))}
-                                className="text-[8px] uppercase font-bold text-maritime-ocean hover:text-white transition-colors"
+                                className="text-[8px] uppercase font-bold text-maritime-ocean hover:text-white transition-colors flex items-center gap-1"
                             >
                                 {t.useGps}
+                                <span className="opacity-40 font-normal normal-case italic">{t.gpsNote}</span>
                             </button>
                         </div>
                         <div className="bg-white/5 p-4 rounded-2xl border border-white/10 focus-within:border-maritime-ocean transition-all">
@@ -865,15 +868,18 @@ export default function RadioSimulator() {
                     {state.protocol !== 'routine' && (
                         <div className="space-y-1">
                             <label className="text-[10px] uppercase font-black text-white/30 tracking-widest ml-4">{t.problemLabel}</label>
-                            <select
-                                className="w-full bg-white/5 p-4 rounded-2xl border border-white/10 outline-none text-white text-sm appearance-none cursor-pointer"
-                                value={state.message.problem}
-                                onChange={e => setState(s => ({ ...s, message: { ...s.message, problem: e.target.value } }))}
-                            >
-                                {state.protocol === 'distress' && DISTRESS_PROBLEMS.map(p => <option key={p.id} value={p.id} className="bg-maritime-midnight">{p.label[state.language]}</option>)}
-                                {state.protocol === 'urgency' && URGENCY_PROBLEMS.map(p => <option key={p.id} value={p.id} className="bg-maritime-midnight">{p.label[state.language]}</option>)}
-                                {state.protocol === 'safety' && SAFETY_PROBLEMS.map(p => <option key={p.id} value={p.id} className="bg-maritime-midnight">{p.label[state.language]}</option>)}
-                            </select>
+                            <div className="relative">
+                                <select
+                                    className="w-full bg-white/5 p-4 rounded-2xl border border-white/10 outline-none text-white text-sm appearance-none cursor-pointer pr-10"
+                                    value={state.message.problem}
+                                    onChange={e => setState(s => ({ ...s, message: { ...s.message, problem: e.target.value } }))}
+                                >
+                                    {state.protocol === 'distress' && DISTRESS_PROBLEMS.map(p => <option key={p.id} value={p.id} className="bg-maritime-midnight">{p.label[state.language]}</option>)}
+                                    {state.protocol === 'urgency' && URGENCY_PROBLEMS.map(p => <option key={p.id} value={p.id} className="bg-maritime-midnight">{p.label[state.language]}</option>)}
+                                    {state.protocol === 'safety' && SAFETY_PROBLEMS.map(p => <option key={p.id} value={p.id} className="bg-maritime-midnight">{p.label[state.language]}</option>)}
+                                </select>
+                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
+                            </div>
                         </div>
                     )}
 
@@ -896,9 +902,9 @@ export default function RadioSimulator() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <label className="text-[10px] uppercase font-black text-white/30 tracking-widest ml-4">{t.routineCategoryLabel}</label>
-                                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 focus-within:border-maritime-ocean transition-all">
+                                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 focus-within:border-maritime-ocean transition-all relative">
                                     <select
-                                        className="w-full bg-transparent border-none outline-none text-white font-bold cursor-pointer appearance-none"
+                                        className="w-full bg-transparent border-none outline-none text-white font-bold cursor-pointer appearance-none pr-8"
                                         value={ROUTINE_CATEGORIES.find(c => c.scenarios.some(s => s.id === state.message.routineScenario))?.id}
                                         onChange={e => {
                                             const cat = ROUTINE_CATEGORIES.find(c => c.id === e.target.value);
@@ -909,13 +915,14 @@ export default function RadioSimulator() {
                                             <option key={cat.id} value={cat.id} className="bg-maritime-midnight">{cat.label[state.language]}</option>
                                         ))}
                                     </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
                                 </div>
                             </div>
                             <div className="space-y-1">
                                 <label className="text-[10px] uppercase font-black text-white/30 tracking-widest ml-4">{t.routineScenarioLabel}</label>
-                                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 focus-within:border-maritime-ocean transition-all">
+                                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 focus-within:border-maritime-ocean transition-all relative">
                                     <select
-                                        className="w-full bg-transparent border-none outline-none text-white font-bold cursor-pointer appearance-none"
+                                        className="w-full bg-transparent border-none outline-none text-white font-bold cursor-pointer appearance-none pr-8"
                                         value={state.message.routineScenario}
                                         onChange={e => setState(s => ({ ...s, message: { ...s.message, routineScenario: e.target.value, routinePhase: 0 } }))}
                                     >
@@ -923,6 +930,7 @@ export default function RadioSimulator() {
                                             <option key={sc.id} value={sc.id} className="bg-maritime-midnight">{sc.label[state.language]}</option>
                                         ))}
                                     </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
                                 </div>
                             </div>
                         </div>

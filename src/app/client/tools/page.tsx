@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, query, getDocs, doc, setDoc, deleteDoc, orderBy, getDoc } from "firebase/firestore";
+import { useLanguage } from "@/components/LanguageContext";
+import LanguageSelector from "@/components/LanguageSelector";
 
 // --- PROFESSIONAL MARITIME CALCULATORS SUITE (15 MODULES) ---
 
@@ -39,6 +41,7 @@ const getMeridionalParts = (lat: number) => {
 // --- Main Page Component ---
 export default function FleetToolsPage() {
     const { isClient, rank, loading: authLoading } = useAuth();
+    const { t } = useLanguage();
     const router = useRouter();
     const [expanded, setExpanded] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'essentials' | 'advanced'>('essentials');
@@ -76,30 +79,33 @@ export default function FleetToolsPage() {
                             className="group flex items-center gap-2 text-maritime-teal/40 hover:text-maritime-teal transition-all text-[10px] uppercase tracking-[0.3em] font-black"
                         >
                             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                            Bridge Dashboard
+                            {t.client.toolsUI.bridgeDashboard}
                         </button>
-                        <h1 className="text-6xl font-light text-maritime-brass">Operational <span className="font-black text-maritime-ocean italic">Toolbox</span></h1>
+                        <h1 className="text-6xl font-light text-maritime-brass">{t.client.toolsUI.operationalToolbox.split(' ').slice(0, -1).join(' ')} <span className="font-black text-maritime-ocean italic">{t.client.toolsUI.operationalToolbox.split(' ').slice(-1)}</span></h1>
                         <p className="text-maritime-teal/40 text-sm max-w-2xl border-l-2 border-maritime-ocean/20 pl-6 leading-relaxed">
-                            Professional Suite for Ships' Officers. Precision maritime computing modules for High-Sea Navigation, Ship Stability, Career Records, and Cargo Operations.
+                            {t.client.toolsUI.toolboxDesc}
                         </p>
                     </div>
 
                     {/* Tab Switcher */}
-                    <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/10 shadow-2xl">
-                        <button
-                            onClick={() => { setActiveTab('essentials'); setExpanded(null); }}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'essentials' ? 'bg-maritime-ocean text-black shadow-lg shadow-maritime-ocean/20' : 'text-white/40 hover:text-white'}`}
-                        >
-                            <LayoutList className="w-4 h-4" />
-                            Bridge Essentials
-                        </button>
-                        <button
-                            onClick={() => { setActiveTab('advanced'); setExpanded(null); }}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'advanced' ? 'bg-maritime-brass text-black shadow-lg shadow-maritime-brass/20' : 'text-white/40 hover:text-white'}`}
-                        >
-                            <FlaskConical className="w-4 h-4" />
-                            Advanced Ops <span className="text-[8px] opacity-60 ml-1 bg-black/10 px-1 rounded">BETA</span>
-                        </button>
+                    <div className="flex items-center gap-4">
+                        <LanguageSelector />
+                        <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/10 shadow-2xl">
+                            <button
+                                onClick={() => { setActiveTab('essentials'); setExpanded(null); }}
+                                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'essentials' ? 'bg-maritime-ocean text-black shadow-lg shadow-maritime-ocean/20' : 'text-white/40 hover:text-white'}`}
+                            >
+                                <LayoutList className="w-4 h-4" />
+                                {t.client.toolsUI.bridgeEssentials}
+                            </button>
+                            <button
+                                onClick={() => { setActiveTab('advanced'); setExpanded(null); }}
+                                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'advanced' ? 'bg-maritime-brass text-black shadow-lg shadow-maritime-brass/20' : 'text-white/40 hover:text-white'}`}
+                            >
+                                <FlaskConical className="w-4 h-4" />
+                                {t.client.toolsUI.advancedOps} <span className="text-[8px] opacity-60 ml-1 bg-black/10 px-1 rounded">BETA</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -110,8 +116,8 @@ export default function FleetToolsPage() {
                                 <LayoutList className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Bridge Essentials</h3>
-                                <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-mono">Day-to-Day Operational Utilities</p>
+                                <h3 className="text-2xl font-black text-white uppercase tracking-tighter">{t.client.toolsUI.bridgeEssentials}</h3>
+                                <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-mono">{t.client.toolsUI.dayToDayDesc}</p>
                             </div>
                         </div>
 
@@ -133,9 +139,9 @@ export default function FleetToolsPage() {
                                 <AlertTriangle className="w-6 h-6" />
                             </div>
                             <div>
-                                <h4 className="text-xs font-black text-maritime-orange uppercase tracking-wider">Advanced Tools - Beta Status</h4>
+                                <h4 className="text-xs font-black text-maritime-orange uppercase tracking-wider">{t.client.toolsUI.advancedOps} - {t.client.toolsUI.betaStatus}</h4>
                                 <p className="text-[11px] text-maritime-orange/70 font-medium">
-                                    These tools are currently under development and calibration. They may contain calculation errors or unstable performance. Please double-check all results with official nautical manuals.
+                                    {t.client.toolsUI.betaWarning}
                                 </p>
                             </div>
                         </div>
@@ -143,7 +149,7 @@ export default function FleetToolsPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-16">
                             {/* --- NAVIGATION CLUSTER --- */}
                             <div className="space-y-8">
-                                <ClusterLabel icon={<Navigation />} title="Advanced Navigation" />
+                                <ClusterLabel icon={<Navigation />} title={t.client.toolsUI.navCluster} />
                                 <ToolGroup>
                                     <ToolEntry id="gc_nav" title="Great Circle Sailing" icon={<TrendingUp />} expanded={expanded} onToggle={handleToggle}><GreatCircleTool /></ToolEntry>
                                     <ToolEntry id="merc_course" title="Mercator Sailing: Course/Dist" icon={<Layers />} expanded={expanded} onToggle={handleToggle}><MercatorCourseTool /></ToolEntry>
@@ -155,7 +161,7 @@ export default function FleetToolsPage() {
 
                             {/* --- SHIP OPERATIONS CLUSTER --- */}
                             <div className="space-y-8">
-                                <ClusterLabel icon={<Ship />} title="Cargo & Stability" />
+                                <ClusterLabel icon={<Ship />} title={t.client.toolsUI.shipCluster} />
                                 <ToolGroup>
                                     <ToolEntry id="draft" title="Draft Survey Professional" icon={<Maximize />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><DraftSurveyTool /></ToolEntry>
                                     <ToolEntry id="stability" title="Ship Stability & Loading" icon={<ShieldCheck />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><ShipStabilityTool /></ToolEntry>
@@ -166,7 +172,7 @@ export default function FleetToolsPage() {
 
                             {/* --- CAREER & RECORDS CLUSTER --- */}
                             <div className="space-y-8">
-                                <ClusterLabel icon={<GraduationCap />} title="Officer's Records" />
+                                <ClusterLabel icon={<GraduationCap />} title={t.client.toolsUI.careerCluster} />
                                 <ToolGroup>
                                     <ToolEntry id="sea" title="Sea Service Record" icon={<Calendar />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><SeaServiceTool /></ToolEntry>
                                     <ToolEntry id="contract" title="Contract Countdown" icon={<Clock />} expanded={expanded} onToggle={handleToggle} isRestricted={rank !== 'captain'}><ContractTool /></ToolEntry>
@@ -175,7 +181,7 @@ export default function FleetToolsPage() {
 
                             {/* --- CONVERSION SUITE --- */}
                             <div className="space-y-8">
-                                <ClusterLabel icon={<RefreshCw />} title="Auxiliary Conversions" />
+                                <ClusterLabel icon={<RefreshCw />} title={t.client.toolsUI.convCluster} />
                                 <ToolGroup>
                                     <ToolEntry id="coord" title="Lat/Lon Universal Converter" icon={<MapPin />} expanded={expanded} onToggle={handleToggle}><LatLonConverter /></ToolEntry>
                                     <ToolEntry id="arc" title="Arc & Time (15º/hr)" icon={<RefreshCw />} expanded={expanded} onToggle={handleToggle}><ArcTimeTool /></ToolEntry>
@@ -208,6 +214,8 @@ function ToolGroup({ children }: { children: React.ReactNode }) {
 
 function ToolEntry({ id, title, icon, children, expanded, onToggle, isRestricted }: any) {
     const isExpanded = expanded === id;
+    const { t } = useLanguage(); // Added useLanguage hook here
+
     return (
         <div className={`glass border border-white/10 rounded-3xl overflow-hidden transition-all duration-500 ${isRestricted ? 'bg-black/30' : 'hover:border-maritime-ocean/40'} ${isExpanded ? 'ring-1 ring-maritime-ocean shadow-[0_0_50px_rgba(0,180,216,0.1)]' : ''}`}>
             <button
@@ -220,7 +228,7 @@ function ToolEntry({ id, title, icon, children, expanded, onToggle, isRestricted
                     </div>
                     <div className="text-left">
                         <span className={`block font-bold text-lg ${isRestricted ? 'text-white/20' : 'text-white'}`}>{title}</span>
-                        {isRestricted && <span className="text-[8px] uppercase tracking-widest text-maritime-ocean font-bold">Authorized Captain Rank Required</span>}
+                        {isRestricted && <span className="text-[8px] uppercase tracking-widest text-maritime-ocean font-bold">{t.client.toolsUI.promotionRequired}</span>}
                     </div>
                 </div>
                 {!isRestricted && (isExpanded ? <ChevronUp className="w-5 h-5 text-white/20" /> : <ChevronDown className="w-5 h-5 text-white/20 group-hover:text-white" />)}

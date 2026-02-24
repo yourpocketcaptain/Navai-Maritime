@@ -44,9 +44,14 @@ export const metadata: Metadata = {
   verification: {
     google: "V4XUr10p5UYZDE3QQllPxWwIgwLcISuQ52573049V5I",
   },
+  metadataBase: new URL('https://navaitech.com'),
+  alternates: {
+    canonical: '/',
+  },
 };
 
 import { AuthProvider } from "@/components/AuthContext";
+import { LanguageProvider } from "@/components/LanguageContext";
 import Script from "next/script";
 
 export default function RootLayout({
@@ -75,9 +80,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
