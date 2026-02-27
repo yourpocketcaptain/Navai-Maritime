@@ -45,9 +45,6 @@ export const metadata: Metadata = {
     google: "V4XUr10p5UYZDE3QQllPxWwIgwLcISuQ52573049V5I",
   },
   metadataBase: new URL('https://navaitech.com'),
-  alternates: {
-    canonical: '/',
-  },
 };
 
 import { AuthProvider } from "@/components/AuthContext";
