@@ -15,7 +15,7 @@ export const translations = {
             desc5: "on iOS.",
             signup: "Sign Up Web Platform",
             freeAccess: "Free Access",
-            downloadApp: "Download on the",
+            downloadApp: "Download Free on the",
             appStore: "App Store",
             availableNow: "Available Now"
         },
@@ -178,7 +178,7 @@ export const translations = {
             desc5: "en iOS.",
             signup: "Registro Plataforma Web",
             freeAccess: "Acceso Gratuito",
-            downloadApp: "Descárgalo en la",
+            downloadApp: "Descarga Gratis en la",
             appStore: "App Store",
             availableNow: "Disponible Ahora"
         },
