@@ -41,10 +41,14 @@ export const metadata: Metadata = {
     description: "Maritime AI navigation and professional tools at your fingertips.",
     images: ["/app-screenshot.png"],
   },
-  verification: {
-    google: "V4XUr10p5UYZDE3QQllPxWwIgwLcISuQ52573049V5I",
-  },
   metadataBase: new URL('https://navaitech.com'),
+  alternates: {
+    canonical: '/',
+    languages: {
+      'en-US': '/',
+      'es-ES': '/es/',
+    },
+  },
 };
 
 import { AuthProvider } from "@/components/AuthContext";
@@ -60,12 +64,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Google AdSense */}
-        <Script
+        <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5141574093814069"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+        ></script>
         {/* Google Analytics */}
         <Script
           strategy="afterInteractive"

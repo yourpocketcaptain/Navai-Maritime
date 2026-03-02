@@ -31,6 +31,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         },
         alternates: {
             canonical: `/blog/${slug}/`,
+            languages: {
+                'en-US': `/blog/${slug}/`,
+                'es-ES': `/blog/es/${slug}/`,
+            },
         }
     };
 }
