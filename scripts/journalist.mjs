@@ -108,7 +108,10 @@ This is a mock post because no API key was provided.
         const data = await response.json();
 
         if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-            return data.candidates[0].content.parts[0].text;
+            let text = data.candidates[0].content.parts[0].text;
+            // Strip markdown code block wrappers if they exist
+            text = text.replace(/^```markdown\n?/i, '').replace(/```$/i, '').trim();
+            return text;
         } else {
             console.error('API Error:', JSON.stringify(data));
             return null;

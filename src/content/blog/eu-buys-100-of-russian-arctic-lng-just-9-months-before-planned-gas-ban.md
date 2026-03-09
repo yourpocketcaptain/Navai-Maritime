@@ -1,4 +1,3 @@
-```markdown
 ---
 title: "The Arctic LNG Rush: What Europe’s Massive Gas Buy-Up Means for Shifting Seas"
 author: "NAVAI Editorial Team"
@@ -48,4 +47,3 @@ The oceans are only getting busier, and the intersection of global politics, ene
 Embrace the future of the **yachting life**. Equip your vessel with the most powerful **sailing technology** available and sail with the confidence of an expert. 
 
 **[Download NAVAI today](#)** and experience how true maritime AI can transform your next voyage into your safest, smartest passage yet. Fair winds and following seas!
-```

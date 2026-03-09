@@ -1,4 +1,3 @@
-```markdown
 ---
 title: "Europa Compra el 100% del GNL Ártico Ruso a 9 Meses del Veto: El Impacto en las Rutas y la Navegación Global"
 author: "NAVAI Editorial Team"
@@ -42,4 +41,3 @@ Las fluctuaciones en la importación de GNL nos recuerdan que el océano es un e
 La **IA marítima** ya no es el futuro; es el presente del puente de mando moderno. No dejes tu seguridad ni la eficiencia de tu embarcación al azar. 
 
 **[Descarga NAVAI hoy mismo]** y transforma tu dispositivo en el asistente de navegación más inteligente, preciso y confiable del mundo. Buen viento y mares tranquilos, capitanes.
-```
