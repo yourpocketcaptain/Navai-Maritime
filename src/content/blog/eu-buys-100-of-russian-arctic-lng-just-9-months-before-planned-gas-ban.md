@@ -1,7 +1,7 @@
 ---
 title: "The Arctic LNG Rush: What Europe’s Massive Gas Buy-Up Means for Shifting Seas"
 author: "NAVAI Editorial Team"
-date: "2026-03-09"
+date: "2026-03-16"
 image: "https://images.unsplash.com/photo-1541180209503-455b5d14e9f7?auto=format&fit=crop&w=1920&q=80"
 categories: ["Maritime News", "Sailing Technology"]
 tags: ["sailing technology", "maritime AI", "safe navigation", "yachting life", "LNG", "maritime regulations"]
