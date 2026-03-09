@@ -1,9 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
+import { db } from './firebase';
+import { collection, getDocs, query, where, orderBy, doc, getDoc, limit } from 'firebase/firestore';
 import { marked } from 'marked';
-
-const postsDirectory = path.join(process.cwd(), 'src/content/blog');
 
 export interface BlogPost {
     slug: string;
@@ -14,57 +11,68 @@ export interface BlogPost {
     image: string;
     author: string;
     content: string;
+    lang: string;
 }
 
-export function getAllPosts(lang: string = 'en'): BlogPost[] {
-    const langDir = lang === 'es' ? path.join(postsDirectory, 'es') : postsDirectory;
-
-    if (!fs.existsSync(langDir)) return [];
-
-    const fileNames = fs.readdirSync(langDir);
-    const allPostsData = fileNames
-        .filter((fileName) => fileName.endsWith('.md'))
-        .map((fileName) => {
-            const slug = fileName.replace(/\.md$/, '');
-            const fullPath = path.join(langDir, fileName);
-            const fileContents = fs.readFileSync(fullPath, 'utf8');
-            const { data, content } = matter(fileContents);
-
-            if (!data.title || !data.date) return null;
-
-            return {
-                slug,
-                ...(data as Omit<BlogPost, 'slug' | 'content'>),
-                content,
-            };
-        })
-        .filter((post): post is BlogPost => post !== null);
-
-    return allPostsData.sort((a, b) => (a.date < b.date ? 1 : -1));
-}
-
-export function getPostBySlug(slug: string, lang: string = 'en'): BlogPost | null {
+export async function getAllPosts(lang: string = 'en'): Promise<BlogPost[]> {
     try {
-        const langDir = lang === 'es' ? path.join(postsDirectory, 'es') : postsDirectory;
-        const fullPath = path.join(langDir, `${slug}.md`);
+        const postsRef = collection(db, 'posts');
+        const q = query(
+            postsRef,
+            where('lang', '==', lang),
+            orderBy('date', 'desc')
+        );
 
-        if (!fs.existsSync(fullPath)) {
-            // Fallback to English if Spanish version doesn't exist? 
-            // Better to stay consistent with the requested lang.
-            return null;
+        const querySnapshot = await getDocs(q);
+        const posts: BlogPost[] = [];
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            posts.push({
+                slug: data.slug,
+                title: data.title,
+                date: data.date,
+                description: data.description || '',
+                category: data.category || 'General',
+                image: data.image || '',
+                author: data.author || 'NAVAI Team',
+                content: data.content || '',
+                lang: data.lang || 'en'
+            });
+        });
+
+        return posts;
+    } catch (error) {
+        console.error("Error fetching all posts from Firestore:", error);
+        return [];
+    }
+}
+
+export async function getPostBySlug(slug: string, lang: string = 'en'): Promise<BlogPost | null> {
+    try {
+        // We use the composite ID format lang_slug we set in migration/journalist
+        const docId = `${lang}_${slug}`;
+        const docRef = doc(db, 'posts', docId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            return {
+                slug: data.slug,
+                title: data.title,
+                date: data.date,
+                description: data.description || '',
+                category: data.category || 'General',
+                image: data.image || '',
+                author: data.author || 'NAVAI Team',
+                content: data.content || '',
+                lang: data.lang || 'en'
+            } as BlogPost;
         }
 
-        const fileContents = fs.readFileSync(fullPath, 'utf8');
-        const { data, content } = matter(fileContents);
-
-        if (!data.title || !data.date) return null;
-
-        return {
-            slug,
-            ...(data as Omit<BlogPost, 'slug' | 'content'>),
-            content,
-        };
+        return null;
     } catch (error) {
+        console.error(`Error fetching post ${slug} from Firestore:`, error);
         return null;
     }
 }

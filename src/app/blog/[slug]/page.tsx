@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import BlogPostContent from "../BlogPostContent";
 
 export async function generateStaticParams() {
-    const posts = getAllPosts('en');
+    const posts = await getAllPosts('en');
     return posts.map((post) => ({
         slug: post.slug,
     }));
@@ -16,7 +16,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
-    const post = getPostBySlug(slug, 'en');
+    const post = await getPostBySlug(slug, 'en');
 
     if (!post) return { title: 'Post Not Found' };
 
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
     const { slug } = await params;
-    const post = getPostBySlug(slug, 'en');
+    const post = await getPostBySlug(slug, 'en');
 
     if (!post) notFound();
 
