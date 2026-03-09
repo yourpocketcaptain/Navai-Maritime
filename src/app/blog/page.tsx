@@ -9,9 +9,9 @@ export const metadata = {
     }
 };
 
-export default async function BlogPage() {
-    const enPosts = await getAllPosts('en');
-    const esPosts = await getAllPosts('es');
+export default function BlogPage() {
+    const enPosts = getAllPosts('en');
+    const esPosts = getAllPosts('es');
 
     return <BlogClient enPosts={enPosts} esPosts={esPosts} />;
 }

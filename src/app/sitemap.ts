@@ -2,9 +2,9 @@ import { MetadataRoute } from 'next'
 import { getAllPosts } from '@/lib/blog'
 export const dynamic = 'force-static'
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const enPosts = await getAllPosts('en');
-    const esPosts = await getAllPosts('es');
+export default function sitemap(): MetadataRoute.Sitemap {
+    const enPosts = getAllPosts('en');
+    const esPosts = getAllPosts('es');
 
     const enBlogEntries = enPosts.map(post => ({
         url: `https://navaitech.com/blog/${post.slug}/`,

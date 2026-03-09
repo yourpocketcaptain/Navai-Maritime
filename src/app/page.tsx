@@ -12,11 +12,11 @@ export const metadata: Metadata = {
     images: ["/app-screenshot.png"],
   },
   alternates: {
-    canonical: 'https://navaitech.com/',
+    canonical: '/',
   }
 };
 
-export default async function Home() {
-  const posts = (await getAllPosts()).slice(0, 3);
+export default function Home() {
+  const posts = getAllPosts().slice(0, 3);
   return <HomeClient initialPosts={posts} />;
 }

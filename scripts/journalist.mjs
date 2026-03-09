@@ -2,22 +2,10 @@ import RSSParser from 'rss-parser';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import admin from 'firebase-admin';
-import dotenv from 'dotenv';
-
-dotenv.config({ path: '.env.local' });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Initialize Firebase Admin
-if (!admin.apps.length) {
-    admin.initializeApp({
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'navai-maritime',
-    });
-}
-
-const db = admin.firestore();
 const parser = new RSSParser();
 const FEEDS = [
     'https://gcaptain.com/feed/',
@@ -147,45 +135,14 @@ async function run() {
     const enPost = await generatePost(topNews, 'en');
     if (enPost) {
         fs.writeFileSync(path.join(__dirname, '../src/content/blog', `${slug}.md`), enPost);
-        console.log(`Saved Local EN: ${slug}.md`);
-
-        // Save to Firestore
-        await saveToFirestore(enPost, slug, 'en');
+        console.log(`Published EN: ${slug}.md`);
     }
 
     // Generate Spanish
     const esPost = await generatePost(topNews, 'es');
     if (esPost) {
         fs.writeFileSync(path.join(__dirname, '../src/content/blog/es', `${slug}.md`), esPost);
-        console.log(`Saved Local ES: ${slug}.md`);
-
-        // Save to Firestore
-        await saveToFirestore(esPost, slug, 'es');
-    }
-}
-
-async function saveToFirestore(mdContent, slug, lang) {
-    try {
-        const matter = (await import('gray-matter')).default;
-        const { data, content } = matter(mdContent);
-
-        const postData = {
-            slug: slug || '',
-            lang: lang || 'en',
-            title: data.title || 'Untitled Post',
-            date: data.date || new Date().toISOString().split('T')[0],
-            description: data.description || '',
-            category: data.category || 'General',
-            image: data.image || '',
-            author: data.author || 'NAVAI Editorial Team',
-            content: content || '',
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        };
-
-        await db.collection('posts').doc(`${lang}_${slug}`).set(postData, { merge: true });
-        console.log(`Published to Firestore: ${lang}/${slug}`);
-    } catch (e) {
-        console.error(`Firestore Save Error (${lang}/${slug}):`, e.message);
+        console.log(`Published ES: ${slug}.md`);
     }
 }
 
