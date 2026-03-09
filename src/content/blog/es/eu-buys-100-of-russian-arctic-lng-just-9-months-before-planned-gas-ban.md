@@ -2,7 +2,7 @@
 ---
 title: "Europa Compra el 100% del GNL Ártico Ruso a 9 Meses del Veto: El Impacto en las Rutas y la Navegación Global"
 author: "NAVAI Editorial Team"
-date: "2023-11-01"
+date: "2026-03-09"
 image: "https://images.unsplash.com/photo-1588665042220-410a08e121ee?auto=format&fit=crop&w=1920&q=80"
 categories: ["Noticias Marítimas", "Tendencias Globales"]
 tags: ["tecnología de navegación", "IA marítima", "navegación segura", "vida en yate", "GNL", "rutas marítimas"]

@@ -51,6 +51,7 @@ async function generatePost(newsItem, lang = 'en') {
     const modelName = await getAvailableModel();
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent`;
 
+    const todayDate = new Date().toISOString().split('T')[0];
     const prompt = `
     You are a professional maritime journalist and nautical SEO expert for NAVAI (the ultimate AI-powered maritime assistant).
     Your goal is to write a highly engaging, SEO-optimized blog post based on this news: "${newsItem.title}".
@@ -73,7 +74,7 @@ async function generatePost(newsItem, lang = 'en') {
        - The Body: Summarize the news but add expert nautical perspective.
        - **NAVAI Integration**: Explicitly mention how NAVAI (the app) helps sailors deal with issues related to this news (e.g., if it's about weather, mention navai's weather tools).
        - Call to Action: Encourage them to try NAVAI for safer and smarter voyages.
-    4. Format: Markdown with Frontmatter.
+    4. Format: Markdown with Frontmatter. You MUST include the exact following date in the frontmatter: \`date: "${todayDate}"\`
     5. Language: ${lang === 'es' ? 'Spanish' : 'English'}.
     6. Author: "NAVAI Editorial Team".
     7. Image: Use a high-quality Unsplash URL related to the topic.
